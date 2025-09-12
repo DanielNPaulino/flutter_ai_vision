@@ -18,12 +18,18 @@ class ApiService {
     };
 
     final body = jsonEncode({
-      "model": "gpt-4o-mini", // Vision-capable model
+      "model": "gpt-4o-mini",
       "messages": [
         {
           "role": "system",
           "content":
-              "You are an expert ornithologist. Identify the bird species based on a feather photo and provide a brief description.",
+              "You are an expert ornithologist AI that identifies birds from feather photos. "
+              "You must ONLY respond in valid JSON with this exact format:\n\n"
+              "{\n"
+              "  \"species\": \"<name of species>\",\n"
+              "  \"confidence\": <number between 0 and 1>,\n"
+              "  \"description\": \"<short description of the species>\"\n"
+              "}\n\nNo extra text or explanation.",
         },
         {
           "role": "user",
@@ -31,11 +37,11 @@ class ApiService {
             {
               "type": "text",
               "text":
-                  "Identify this bird species from its feather and provide confidence level (0-1).",
+                  "Identify this bird species from its feather and provide confidence level and description.",
             },
             {
-              "type": "image",
-              "image_url": "data:image/jpeg;base64,$base64Image",
+              "type": "image_url",
+              "image_url": {"url": "data:image/jpeg;base64,$base64Image"},
             },
           ],
         },
@@ -44,28 +50,41 @@ class ApiService {
 
     final response = await http.post(url, headers: headers, body: body);
 
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
+    final data = jsonDecode(response.body);
 
-      // Extract relevant text from the response
-      final String aiText = data['choices'][0]['message']['content'];
+    // ✅ Handle errors
+    if (data['error'] != null) {
+      final errorMessage = data['error']['message'] ?? "Unknown API error";
+      throw Exception(
+        "OpenAI API error: ${response.statusCode} - $errorMessage",
+      );
+    }
 
-      // We'll assume AI responds in a structured way, like:
-      // "Species: European Goldfinch\nConfidence: 0.85\nDescription: ..."
-      final species = _extractField(aiText, "Species");
-      final confidence =
-          double.tryParse(_extractField(aiText, "Confidence")) ?? 0.0;
-      final description = _extractField(aiText, "Description");
+    if (data['choices'] == null || data['choices'].isEmpty) {
+      throw Exception("No choices returned from OpenAI API.");
+    }
+
+    final String? aiText = data['choices'][0]['message']?['content'];
+
+    // ✅ Add debugging print here
+    print("Raw AI response: $aiText");
+
+    if (aiText == null || aiText.isEmpty) {
+      throw Exception("Empty content returned from OpenAI API.");
+    }
+
+    // ✅ Parse JSON safely
+    try {
+      final parsedJson = jsonDecode(aiText);
 
       return {
-        "species": species,
-        "confidence": confidence,
-        "description": description,
+        "species": parsedJson["species"] ?? "Unknown",
+        "confidence": (parsedJson["confidence"] ?? 0.0).toDouble(),
+        "description": parsedJson["description"] ?? "No description available",
       };
-    } else {
-      throw Exception(
-        "OpenAI API error: ${response.statusCode} - ${response.body}",
-      );
+    } catch (e) {
+      print("Failed to parse JSON: $aiText");
+      throw Exception("Invalid JSON format returned by AI");
     }
   }
 
