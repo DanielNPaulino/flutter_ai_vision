@@ -19,6 +19,35 @@ class _HomeScreenState extends State<HomeScreen> {
   final ApiService _apiService = ApiService();
   bool _isLoading = false;
 
+  void _showCollectedAnimation(BuildContext context, String birdName) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.celebration, color: Colors.amber, size: 80),
+              const SizedBox(height: 8),
+              Text(
+                "New Bird Collected!",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              Text(birdName, style: TextStyle(fontSize: 18)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<void> _pickImage(ImageSource source) async {
     try {
       final pickedFile = await _picker.pickImage(source: source);
@@ -51,6 +80,9 @@ class _HomeScreenState extends State<HomeScreen> {
           'dateIdentified': DateTime.now().toIso8601String(),
         });
       }
+
+      // Show the animation for new bird
+      _showCollectedAnimation(context, result['common_name']);
 
       setState(() {
         _isLoading = false;

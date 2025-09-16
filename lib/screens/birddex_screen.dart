@@ -77,7 +77,7 @@ class BirdDexScreen extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (_) => ResultScreen(
-                          image: File(''), // will use localImagePath or network
+                          image: File(''),
                           commonName: bird['commonName'],
                           scientificName: bird['scientificName'],
                           confidence: bird['confidence'],
@@ -114,6 +114,8 @@ class BirdDexScreen extends StatelessWidget {
                             : Image.network(
                                 bird['imageUrl'],
                                 fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    const Icon(Icons.broken_image, size: 50),
                               ),
                       ),
                     ),

@@ -31,18 +31,21 @@ class ResultScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget birdImage;
 
-    if (birdImageUrl != null && birdImageUrl!.isNotEmpty) {
-      birdImage = Image.network(birdImageUrl!, fit: BoxFit.cover);
-    } else if (localImagePath != null && localImagePath!.isNotEmpty) {
+    if (localImagePath != null && localImagePath!.isNotEmpty) {
       birdImage = Image.file(File(localImagePath!), fit: BoxFit.cover);
-    } else if (image.path.isNotEmpty) {
-      birdImage = Image.file(image, fit: BoxFit.cover);
+    } else if (birdImageUrl != null && birdImageUrl!.isNotEmpty) {
+      birdImage = Image.network(
+        birdImageUrl!,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) =>
+            const Icon(Icons.broken_image, size: 150, color: Colors.grey),
+      );
     } else {
       birdImage = const Icon(Icons.help_outline, size: 150, color: Colors.grey);
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text('Bird Identification')),
+      appBar: AppBar(title: const Text('Bird Identification')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
