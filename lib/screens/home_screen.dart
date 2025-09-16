@@ -37,9 +37,13 @@ class _HomeScreenState extends State<HomeScreen> {
         MaterialPageRoute(
           builder: (context) => ResultScreen(
             image: _image!,
-            species: result['species'],
+            commonName: result['common_name'],
+            scientificName: result['scientific_name'],
             confidence: result['confidence'],
             description: result['description'],
+            habitat: result['habitat'],
+            diet: result['diet'],
+            conservationStatus: result['conservation_status'],
             birdImageUrl: result['imageUrl'],
           ),
         ),

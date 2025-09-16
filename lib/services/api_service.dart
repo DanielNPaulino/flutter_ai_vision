@@ -4,9 +4,9 @@ import 'package:http/http.dart' as http;
 
 class ApiService {
   final String _apiKey =
-      "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"; // TODO: Replace with env key later
+      "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"; // TODO: move to env later
 
-  /// Identify bird species from a bird photo
+  /// Identify bird species with enriched data
   Future<Map<String, dynamic>> identifyBird(File imageFile) async {
     final url = Uri.parse("https://api.openai.com/v1/chat/completions");
 
@@ -24,21 +24,24 @@ class ApiService {
         {
           "role": "system",
           "content":
-              "You are an expert ornithologist AI that identifies bird species from photos. "
-              "You must ONLY respond in valid JSON with this exact format:\n\n"
+              "You are an expert ornithologist AI. Identify birds from photos. "
+              "Respond ONLY in valid JSON:\n\n"
               "{\n"
-              "  \"species\": \"<name of species>\",\n"
-              "  \"confidence\": <number between 0 and 1>,\n"
-              "  \"description\": \"<short description of the species>\"\n"
-              "}\n\nNo extra text or explanation.",
+              "  \"common_name\": \"<common name>\",\n"
+              "  \"scientific_name\": \"<scientific name>\",\n"
+              "  \"confidence\": <0-1>,\n"
+              "  \"description\": \"<short description>\",\n"
+              "  \"habitat\": \"<primary habitat>\",\n"
+              "  \"diet\": \"<diet info>\",\n"
+              "  \"conservation_status\": \"<IUCN status>\"\n"
+              "}\n\nNo extra text.",
         },
         {
           "role": "user",
           "content": [
             {
               "type": "text",
-              "text":
-                  "Identify the bird species from this photo, and provide confidence level and a short description.",
+              "text": "Identify this bird and provide enriched data as JSON.",
             },
             {
               "type": "image_url",
@@ -59,13 +62,7 @@ class ApiService {
       );
     }
 
-    if (data['choices'] == null || data['choices'].isEmpty) {
-      throw Exception("No choices returned from OpenAI API.");
-    }
-
     final String? aiText = data['choices'][0]['message']?['content'];
-    print("Raw AI response: $aiText");
-
     if (aiText == null || aiText.isEmpty) {
       throw Exception("Empty content returned from OpenAI API.");
     }
@@ -74,27 +71,31 @@ class ApiService {
     try {
       parsedJson = jsonDecode(aiText);
     } catch (e) {
-      print("Failed to parse JSON: $aiText");
+      print("Failed to parse AI JSON: $aiText");
       throw Exception("Invalid JSON format returned by AI.");
     }
 
-    final speciesName = parsedJson["species"] ?? "Unknown";
-    final wikiImageUrl = await _fetchWikipediaImage(speciesName);
+    final commonName = parsedJson["common_name"] ?? "Unknown";
+
+    final wikiImageUrl = await _fetchWikipediaImage(commonName);
 
     return {
-      "species": speciesName,
+      "common_name": commonName,
+      "scientific_name": parsedJson["scientific_name"] ?? "Unknown",
       "confidence": (parsedJson["confidence"] ?? 0.0).toDouble(),
-      "description": parsedJson["description"] ?? "No description available",
+      "description": parsedJson["description"] ?? "No description",
+      "habitat": parsedJson["habitat"] ?? "Unknown",
+      "diet": parsedJson["diet"] ?? "Unknown",
+      "conservation_status": parsedJson["conservation_status"] ?? "Unknown",
       "imageUrl": wikiImageUrl,
     };
   }
 
-  /// Fetch bird image from Wikipedia
+  /// Wikipedia image fetch using search API
   Future<String?> _fetchWikipediaImage(String species) async {
     if (species == "Unknown") return null;
 
     try {
-      // 1️⃣ Use search API to find the closest matching page
       final searchQuery = Uri.encodeComponent(species);
       final searchUrl = Uri.parse(
         "https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=$searchQuery&format=json",
@@ -106,11 +107,9 @@ class ApiService {
       final searchResults = searchData['query']?['search'];
       if (searchResults == null || searchResults.isEmpty) return null;
 
-      // Take the first search result title
       final pageTitle = searchResults[0]['title'];
       if (pageTitle == null) return null;
 
-      // 2️⃣ Use pageimages API to get the thumbnail
       final titleQuery = Uri.encodeComponent(pageTitle);
       final imageUrl = Uri.parse(
         "https://en.wikipedia.org/w/api.php?action=query&titles=$titleQuery&prop=pageimages&format=json&pithumbsize=500",
@@ -125,11 +124,9 @@ class ApiService {
       final page = pages[pageKey];
 
       final thumbnail = page['thumbnail'];
-      if (thumbnail != null && thumbnail['source'] != null) {
-        return thumbnail['source'];
-      } else {
-        return null;
-      }
+      return (thumbnail != null && thumbnail['source'] != null)
+          ? thumbnail['source']
+          : null;
     } catch (e) {
       print("Wikipedia image fetch error: $e");
       return null;
