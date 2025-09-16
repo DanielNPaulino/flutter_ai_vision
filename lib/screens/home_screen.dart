@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/api_service.dart';
 import 'result_screen.dart';
-import 'birddex_screen.dart'; // Import the BirdDex screen
+import 'birdDex_screen.dart';
 import 'package:hive/hive.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({Key? key}) : super(key: key);
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -29,10 +29,9 @@ class _HomeScreenState extends State<HomeScreen> {
         _isLoading = true;
       });
 
-      // Call AI + Wikipedia
       final result = await _apiService.identifyBird(_image!);
 
-      // Inside _pickImage after AI result is received
+      // Save to BirdDex
       final birddexBox = Hive.box('birddex');
       final birdKey = result['common_name'];
 
@@ -41,14 +40,15 @@ class _HomeScreenState extends State<HomeScreen> {
         birddexBox.put(birdKey, {
           'commonName': result['common_name'],
           'scientificName': result['scientific_name'],
-          'imageUrl': result['imageUrl'], // Wikipedia or local file
-          'description': result['description'], // add description
-          'habitat': result['habitat'], // add habitat
-          'diet': result['diet'], // add diet
-          'conservationStatus': result['conservation_status'], // add status
-          'dateIdentified': DateTime.now().toIso8601String(),
+          'imageUrl': result['imageUrl'], // Wikipedia URL if exists
+          'localImagePath': _image!.path, // Local photo path
+          'description': result['description'],
+          'habitat': result['habitat'],
+          'diet': result['diet'],
+          'conservationStatus': result['conservation_status'],
+          'confidence': result['confidence'],
           'collected': true,
-          'confidence': result['confidence'], // store confidence too
+          'dateIdentified': DateTime.now().toIso8601String(),
         });
       }
 
@@ -59,8 +59,9 @@ class _HomeScreenState extends State<HomeScreen> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => ResultScreen(
+          builder: (_) => ResultScreen(
             image: _image!,
+            birdImageUrl: result['imageUrl'],
             commonName: result['common_name'],
             scientificName: result['scientific_name'],
             confidence: result['confidence'],
@@ -68,7 +69,6 @@ class _HomeScreenState extends State<HomeScreen> {
             habitat: result['habitat'],
             diet: result['diet'],
             conservationStatus: result['conservation_status'],
-            birdImageUrl: result['imageUrl'],
           ),
         ),
       );
@@ -83,12 +83,12 @@ class _HomeScreenState extends State<HomeScreen> {
   void _showErrorDialog(String message) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (_) => AlertDialog(
         title: const Text('Error'),
         content: Text(message),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => Navigator.pop(context),
             child: const Text('OK'),
           ),
         ],
@@ -99,81 +99,101 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Bird Identifier"),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.list_alt),
-            tooltip: 'Open BirdDex',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => BirdDexScreen()),
-              );
-            },
-          ),
-        ],
-      ),
-      body: Center(
-        child: _isLoading
-            ? Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text("Identifying bird..."),
-                ],
-              )
-            : Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if (_image != null)
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(12),
-                      child: Image.file(
-                        _image!,
-                        height: 200,
-                        fit: BoxFit.cover,
+      appBar: AppBar(title: const Text("Bird Identifier"), centerTitle: true),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            Expanded(
+              child: Center(
+                child: _isLoading
+                    ? Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          CircularProgressIndicator(),
+                          SizedBox(height: 16),
+                          Text("Identifying bird..."),
+                        ],
+                      )
+                    : Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if (_image != null)
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: Image.file(
+                                _image!,
+                                height: 200,
+                                fit: BoxFit.cover,
+                              ),
+                            )
+                          else
+                            const Text(
+                              "No bird photo selected",
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          const SizedBox(height: 24),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              _actionButton(
+                                icon: Icons.camera_alt,
+                                label: "Take Photo",
+                                onPressed: () => _pickImage(ImageSource.camera),
+                              ),
+                              const SizedBox(width: 16),
+                              _actionButton(
+                                icon: Icons.photo_library,
+                                label: "Gallery",
+                                onPressed: () =>
+                                    _pickImage(ImageSource.gallery),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                    )
-                  else
-                    const Text(
-                      "No bird photo selected",
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
-                    ),
-                  const SizedBox(height: 30),
-                  ElevatedButton.icon(
-                    onPressed: () => _pickImage(ImageSource.camera),
-                    icon: const Icon(Icons.camera_alt),
-                    label: const Text("Take Bird Photo"),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 12,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton.icon(
-                    onPressed: () => _pickImage(ImageSource.gallery),
-                    icon: const Icon(Icons.photo_library),
-                    label: const Text("Choose from Gallery"),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 12,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                  ),
-                ],
               ),
+            ),
+            ElevatedButton.icon(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => BirdDexScreen()),
+                );
+              },
+              icon: const Icon(Icons.book),
+              label: const Text("BirdDex"),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 32,
+                  vertical: 16,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _actionButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onPressed,
+  }) {
+    return ElevatedButton.icon(
+      onPressed: onPressed,
+      icon: Icon(icon),
+      label: Text(label),
+      style: ElevatedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
     );
   }
