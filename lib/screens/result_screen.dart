@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 class ResultScreen extends StatefulWidget {
-  final File image;
+  final File? image; // Made nullable
   final String commonName;
   final String scientificName;
   final double confidence;
@@ -14,7 +14,7 @@ class ResultScreen extends StatefulWidget {
 
   const ResultScreen({
     Key? key,
-    required this.image,
+    this.image,
     required this.commonName,
     required this.scientificName,
     required this.confidence,
@@ -39,7 +39,7 @@ class _ResultScreenState extends State<ResultScreen>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 800),
+      duration: const Duration(milliseconds: 800),
     );
     _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
     _controller.forward();
@@ -62,11 +62,11 @@ class _ResultScreenState extends State<ResultScreen>
           padding: const EdgeInsets.all(16.0),
           child: RichText(
             text: TextSpan(
-              style: TextStyle(color: Colors.black87, fontSize: 16),
+              style: const TextStyle(color: Colors.black87, fontSize: 16),
               children: [
                 TextSpan(
                   text: "$title: ",
-                  style: TextStyle(fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 TextSpan(text: value),
               ],
@@ -80,21 +80,29 @@ class _ResultScreenState extends State<ResultScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Bird Identification')),
+      appBar: AppBar(title: Text(widget.commonName)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
+            // ✅ Display birdImageUrl first if available
             if (widget.birdImageUrl != null)
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: Image.network(widget.birdImageUrl!),
-              ),
-            const SizedBox(height: 16),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.file(widget.image, height: 250, fit: BoxFit.cover),
-            ),
+              )
+            else if (widget.image != null)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.file(
+                  widget.image!,
+                  height: 250,
+                  fit: BoxFit.cover,
+                ),
+              )
+            else
+              const Icon(Icons.help_outline, size: 100), // fallback
+
             const SizedBox(height: 16),
             _infoCard("Common Name", widget.commonName),
             _infoCard("Scientific Name", widget.scientificName),
@@ -109,7 +117,7 @@ class _ResultScreenState extends State<ResultScreen>
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('Back'),
+              child: const Text('Back'),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 24,

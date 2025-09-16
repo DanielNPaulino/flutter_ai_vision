@@ -3,8 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/api_service.dart';
 import 'result_screen.dart';
+import 'birddex_screen.dart'; // Import the BirdDex screen
+import 'package:hive/hive.dart';
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -27,6 +31,26 @@ class _HomeScreenState extends State<HomeScreen> {
 
       // Call AI + Wikipedia
       final result = await _apiService.identifyBird(_image!);
+
+      // Inside _pickImage after AI result is received
+      final birddexBox = Hive.box('birddex');
+      final birdKey = result['common_name'];
+
+      // Save only if not already collected
+      if (!birddexBox.containsKey(birdKey)) {
+        birddexBox.put(birdKey, {
+          'commonName': result['common_name'],
+          'scientificName': result['scientific_name'],
+          'imageUrl': result['imageUrl'], // Wikipedia or local file
+          'description': result['description'], // add description
+          'habitat': result['habitat'], // add habitat
+          'diet': result['diet'], // add diet
+          'conservationStatus': result['conservation_status'], // add status
+          'dateIdentified': DateTime.now().toIso8601String(),
+          'collected': true,
+          'confidence': result['confidence'], // store confidence too
+        });
+      }
 
       setState(() {
         _isLoading = false;
@@ -75,7 +99,22 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Bird Identifier"), centerTitle: true),
+      appBar: AppBar(
+        title: const Text("Bird Identifier"),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.list_alt),
+            tooltip: 'Open BirdDex',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => BirdDexScreen()),
+              );
+            },
+          ),
+        ],
+      ),
       body: Center(
         child: _isLoading
             ? Column(
