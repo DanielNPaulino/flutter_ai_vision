@@ -15,12 +15,10 @@ class _HomeScreenState extends State<HomeScreen> {
   final ApiService _apiService = ApiService();
   bool _isLoading = false;
 
-  /// Pick an image from the specified source and identify the feather
   Future<void> _pickImage(ImageSource source) async {
     try {
       final pickedFile = await _picker.pickImage(source: source);
-
-      if (pickedFile == null) return; // User canceled selection
+      if (pickedFile == null) return;
 
       setState(() {
         _image = File(pickedFile.path);
@@ -28,13 +26,12 @@ class _HomeScreenState extends State<HomeScreen> {
       });
 
       // Call AI + Wikipedia
-      final result = await _apiService.identifyFeather(_image!);
+      final result = await _apiService.identifyBird(_image!);
 
       setState(() {
         _isLoading = false;
       });
 
-      // Navigate to ResultScreen with all data
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -43,7 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
             species: result['species'],
             confidence: result['confidence'],
             description: result['description'],
-            birdImageUrl: result['imageUrl'], // ✅ Added Wikipedia image
+            birdImageUrl: result['imageUrl'],
           ),
         ),
       );
@@ -51,13 +48,10 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         _isLoading = false;
       });
-
-      // Show error dialog
       _showErrorDialog(error.toString());
     }
   }
 
-  /// Display an error message in a dialog
   void _showErrorDialog(String message) {
     showDialog(
       context: context,
@@ -77,10 +71,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Bird Feather Identifier"),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text("Bird Identifier"), centerTitle: true),
       body: Center(
         child: _isLoading
             ? Column(
@@ -88,16 +79,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: const [
                   CircularProgressIndicator(),
                   SizedBox(height: 16),
-                  Text(
-                    "Identifying feather...",
-                    style: TextStyle(fontSize: 16),
-                  ),
+                  Text("Identifying bird..."),
                 ],
               )
             : Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Show preview of selected feather image
                   if (_image != null)
                     ClipRRect(
                       borderRadius: BorderRadius.circular(12),
@@ -109,17 +96,14 @@ class _HomeScreenState extends State<HomeScreen> {
                     )
                   else
                     const Text(
-                      "No image selected",
+                      "No bird photo selected",
                       style: TextStyle(fontSize: 16, color: Colors.grey),
                     ),
-
                   const SizedBox(height: 30),
-
-                  // Camera button
                   ElevatedButton.icon(
                     onPressed: () => _pickImage(ImageSource.camera),
                     icon: const Icon(Icons.camera_alt),
-                    label: const Text("Take Photo"),
+                    label: const Text("Take Bird Photo"),
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 24,
@@ -130,10 +114,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 16),
-
-                  // Gallery button
                   ElevatedButton.icon(
                     onPressed: () => _pickImage(ImageSource.gallery),
                     icon: const Icon(Icons.photo_library),

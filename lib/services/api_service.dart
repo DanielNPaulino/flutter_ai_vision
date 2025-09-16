@@ -6,8 +6,8 @@ class ApiService {
   final String _apiKey =
       "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"; // TODO: Replace with env key later
 
-  /// Identify the bird species based on feather image
-  Future<Map<String, dynamic>> identifyFeather(File imageFile) async {
+  /// Identify bird species from a bird photo
+  Future<Map<String, dynamic>> identifyBird(File imageFile) async {
     final url = Uri.parse("https://api.openai.com/v1/chat/completions");
 
     final imageBytes = await imageFile.readAsBytes();
@@ -24,7 +24,7 @@ class ApiService {
         {
           "role": "system",
           "content":
-              "You are an expert ornithologist AI that identifies birds from feather photos. "
+              "You are an expert ornithologist AI that identifies bird species from photos. "
               "You must ONLY respond in valid JSON with this exact format:\n\n"
               "{\n"
               "  \"species\": \"<name of species>\",\n"
@@ -38,7 +38,7 @@ class ApiService {
             {
               "type": "text",
               "text":
-                  "Identify this bird species from its feather and provide confidence level and description.",
+                  "Identify the bird species from this photo, and provide confidence level and a short description.",
             },
             {
               "type": "image_url",
@@ -52,7 +52,6 @@ class ApiService {
     final response = await http.post(url, headers: headers, body: body);
     final data = jsonDecode(response.body);
 
-    // ✅ Handle errors
     if (data['error'] != null) {
       final errorMessage = data['error']['message'] ?? "Unknown API error";
       throw Exception(
@@ -65,15 +64,12 @@ class ApiService {
     }
 
     final String? aiText = data['choices'][0]['message']?['content'];
-
-    // ✅ Debugging
     print("Raw AI response: $aiText");
 
     if (aiText == null || aiText.isEmpty) {
       throw Exception("Empty content returned from OpenAI API.");
     }
 
-    // ✅ Parse AI JSON response safely
     Map<String, dynamic> parsedJson;
     try {
       parsedJson = jsonDecode(aiText);
@@ -83,8 +79,6 @@ class ApiService {
     }
 
     final speciesName = parsedJson["species"] ?? "Unknown";
-
-    // ✅ Get Wikipedia image
     final wikiImageUrl = await _fetchWikipediaImage(speciesName);
 
     return {
@@ -95,7 +89,7 @@ class ApiService {
     };
   }
 
-  /// Fetch an image URL of the species from Wikipedia
+  /// Fetch bird image from Wikipedia
   Future<String?> _fetchWikipediaImage(String species) async {
     if (species == "Unknown") return null;
 
@@ -107,11 +101,9 @@ class ApiService {
     try {
       final response = await http.get(url);
       final data = jsonDecode(response.body);
-
       final pages = data['query']?['pages'];
       if (pages == null) return null;
 
-      // Extract the first page key dynamically
       final pageKey = pages.keys.first;
       final page = pages[pageKey];
 
