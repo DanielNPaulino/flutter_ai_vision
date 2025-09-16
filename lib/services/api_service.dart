@@ -93,15 +93,32 @@ class ApiService {
   Future<String?> _fetchWikipediaImage(String species) async {
     if (species == "Unknown") return null;
 
-    final query = Uri.encodeComponent(species);
-    final url = Uri.parse(
-      "https://en.wikipedia.org/w/api.php?action=query&titles=$query&prop=pageimages&format=json&pithumbsize=500",
-    );
-
     try {
-      final response = await http.get(url);
-      final data = jsonDecode(response.body);
-      final pages = data['query']?['pages'];
+      // 1️⃣ Use search API to find the closest matching page
+      final searchQuery = Uri.encodeComponent(species);
+      final searchUrl = Uri.parse(
+        "https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=$searchQuery&format=json",
+      );
+
+      final searchResponse = await http.get(searchUrl);
+      final searchData = jsonDecode(searchResponse.body);
+
+      final searchResults = searchData['query']?['search'];
+      if (searchResults == null || searchResults.isEmpty) return null;
+
+      // Take the first search result title
+      final pageTitle = searchResults[0]['title'];
+      if (pageTitle == null) return null;
+
+      // 2️⃣ Use pageimages API to get the thumbnail
+      final titleQuery = Uri.encodeComponent(pageTitle);
+      final imageUrl = Uri.parse(
+        "https://en.wikipedia.org/w/api.php?action=query&titles=$titleQuery&prop=pageimages&format=json&pithumbsize=500",
+      );
+
+      final imageResponse = await http.get(imageUrl);
+      final imageData = jsonDecode(imageResponse.body);
+      final pages = imageData['query']?['pages'];
       if (pages == null) return null;
 
       final pageKey = pages.keys.first;
