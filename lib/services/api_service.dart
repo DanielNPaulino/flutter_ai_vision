@@ -4,8 +4,9 @@ import 'package:http/http.dart' as http;
 
 class ApiService {
   final String _apiKey =
-      "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"; // Replace with your key
+      "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"; // TODO: Replace with env key later
 
+  /// Identify the bird species based on feather image
   Future<Map<String, dynamic>> identifyFeather(File imageFile) async {
     final url = Uri.parse("https://api.openai.com/v1/chat/completions");
 
@@ -49,7 +50,6 @@ class ApiService {
     });
 
     final response = await http.post(url, headers: headers, body: body);
-
     final data = jsonDecode(response.body);
 
     // ✅ Handle errors
@@ -66,31 +66,64 @@ class ApiService {
 
     final String? aiText = data['choices'][0]['message']?['content'];
 
-    // ✅ Add debugging print here
+    // ✅ Debugging
     print("Raw AI response: $aiText");
 
     if (aiText == null || aiText.isEmpty) {
       throw Exception("Empty content returned from OpenAI API.");
     }
 
-    // ✅ Parse JSON safely
+    // ✅ Parse AI JSON response safely
+    Map<String, dynamic> parsedJson;
     try {
-      final parsedJson = jsonDecode(aiText);
-
-      return {
-        "species": parsedJson["species"] ?? "Unknown",
-        "confidence": (parsedJson["confidence"] ?? 0.0).toDouble(),
-        "description": parsedJson["description"] ?? "No description available",
-      };
+      parsedJson = jsonDecode(aiText);
     } catch (e) {
       print("Failed to parse JSON: $aiText");
-      throw Exception("Invalid JSON format returned by AI");
+      throw Exception("Invalid JSON format returned by AI.");
     }
+
+    final speciesName = parsedJson["species"] ?? "Unknown";
+
+    // ✅ Get Wikipedia image
+    final wikiImageUrl = await _fetchWikipediaImage(speciesName);
+
+    return {
+      "species": speciesName,
+      "confidence": (parsedJson["confidence"] ?? 0.0).toDouble(),
+      "description": parsedJson["description"] ?? "No description available",
+      "imageUrl": wikiImageUrl,
+    };
   }
 
-  String _extractField(String text, String fieldName) {
-    final regex = RegExp("$fieldName:\\s*(.*)", caseSensitive: false);
-    final match = regex.firstMatch(text);
-    return match != null ? match.group(1)!.trim() : "Unknown";
+  /// Fetch an image URL of the species from Wikipedia
+  Future<String?> _fetchWikipediaImage(String species) async {
+    if (species == "Unknown") return null;
+
+    final query = Uri.encodeComponent(species);
+    final url = Uri.parse(
+      "https://en.wikipedia.org/w/api.php?action=query&titles=$query&prop=pageimages&format=json&pithumbsize=500",
+    );
+
+    try {
+      final response = await http.get(url);
+      final data = jsonDecode(response.body);
+
+      final pages = data['query']?['pages'];
+      if (pages == null) return null;
+
+      // Extract the first page key dynamically
+      final pageKey = pages.keys.first;
+      final page = pages[pageKey];
+
+      final thumbnail = page['thumbnail'];
+      if (thumbnail != null && thumbnail['source'] != null) {
+        return thumbnail['source'];
+      } else {
+        return null;
+      }
+    } catch (e) {
+      print("Wikipedia image fetch error: $e");
+      return null;
+    }
   }
 }
