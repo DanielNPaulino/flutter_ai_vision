@@ -78,6 +78,8 @@ class _HomeScreenState extends State<HomeScreen> {
           'confidence': result['confidence'],
           'collected': true,
           'dateIdentified': DateTime.now().toIso8601String(),
+          'size': result['size'] ?? 'Unknown', // <-- Added
+          'weight': result['weight'] ?? 'Unknown', // <-- Added
         });
       }
 
@@ -101,6 +103,8 @@ class _HomeScreenState extends State<HomeScreen> {
             habitat: result['habitat'],
             diet: result['diet'],
             conservationStatus: result['conservation_status'],
+            size: result['size'], // <-- Added
+            weight: result['weight'], // <-- Added
           ),
         ),
       );

@@ -56,27 +56,35 @@ class _BirdDexScreenState extends State<BirdDexScreen> {
           'description': savedBird?['description'] ?? '',
           'habitat': savedBird?['habitat'] ?? bird['habitat'] ?? '',
           'diet': savedBird?['diet'] ?? bird['diet'] ?? '',
-          'conservationStatus': savedBird?['conservationStatus'] ?? bird['conservationStatus'] ?? '',
+          'conservationStatus':
+              savedBird?['conservationStatus'] ??
+              bird['conservationStatus'] ??
+              '',
           'dateIdentified': savedBird?['dateIdentified'],
         };
       }),
-      ...hiveBirds.where((bird) =>
-        !allBirds.any((b) => b['commonName'] == bird['commonName'])
-      ).map((bird) => {
-        'commonName': bird['commonName'],
-        'scientificName': bird['scientificName'],
-        'imageUrl': bird['imageUrl'] ?? bird['localImagePath'],
-        'size': bird['size'] ?? '',
-        'weight': bird['weight'] ?? '',
-        'localImagePath': bird['localImagePath'],
-        'collected': true,
-        'confidence': bird['confidence'] ?? 0.0,
-        'description': bird['description'] ?? '',
-        'habitat': bird['habitat'] ?? '',
-        'diet': bird['diet'] ?? '',
-        'conservationStatus': bird['conservationStatus'] ?? '',
-        'dateIdentified': bird['dateIdentified'],
-      }),
+      ...hiveBirds
+          .where(
+            (bird) =>
+                !allBirds.any((b) => b['commonName'] == bird['commonName']),
+          )
+          .map(
+            (bird) => {
+              'commonName': bird['commonName'],
+              'scientificName': bird['scientificName'],
+              'imageUrl': bird['imageUrl'] ?? bird['localImagePath'],
+              'size': bird['size'] ?? '',
+              'weight': bird['weight'] ?? '',
+              'localImagePath': bird['localImagePath'],
+              'collected': true,
+              'confidence': bird['confidence'] ?? 0.0,
+              'description': bird['description'] ?? '',
+              'habitat': bird['habitat'] ?? '',
+              'diet': bird['diet'] ?? '',
+              'conservationStatus': bird['conservationStatus'] ?? '',
+              'dateIdentified': bird['dateIdentified'],
+            },
+          ),
     ];
 
     // 1️⃣ Filter by search
@@ -249,14 +257,20 @@ class _BirdDexScreenState extends State<BirdDexScreen> {
               DropdownButton<String>(
                 value: sizeFilter,
                 items: ["All", "Small", "Medium", "Large"]
-                    .map((s) => DropdownMenuItem(value: s, child: Text("Size: $s")))
+                    .map(
+                      (s) =>
+                          DropdownMenuItem(value: s, child: Text("Size: $s")),
+                    )
                     .toList(),
                 onChanged: (val) => setState(() => sizeFilter = val ?? "All"),
               ),
               DropdownButton<String>(
                 value: weightFilter,
                 items: ["All", "Heavy (>1kg)"]
-                    .map((w) => DropdownMenuItem(value: w, child: Text("Weight: $w")))
+                    .map(
+                      (w) =>
+                          DropdownMenuItem(value: w, child: Text("Weight: $w")),
+                    )
                     .toList(),
                 onChanged: (val) => setState(() => weightFilter = val ?? "All"),
               ),
@@ -295,6 +309,9 @@ class _BirdDexScreenState extends State<BirdDexScreen> {
                                 conservationStatus: bird['conservationStatus'],
                                 birdImageUrl: bird['imageUrl'],
                                 localImagePath: bird['localImagePath'],
+                                size: bird['size'] ?? 'Unknown', // <-- Added
+                                weight:
+                                    bird['weight'] ?? 'Unknown', // <-- Added
                               ),
                             ),
                           );
@@ -333,13 +350,29 @@ class _BirdDexScreenState extends State<BirdDexScreen> {
                           ),
                           Padding(
                             padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              collected ? bird['commonName'] : "???",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: collected ? Colors.black : Colors.grey,
-                              ),
+                            child: Column(
+                              children: [
+                                Text(
+                                  collected ? bird['commonName'] : "???",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: collected
+                                        ? Colors.black
+                                        : Colors.grey,
+                                  ),
+                                ),
+                                if (collected) ...[
+                                  Text(
+                                    "Size: ${bird['size'] ?? 'Unknown'}",
+                                    style: const TextStyle(fontSize: 12),
+                                  ),
+                                  Text(
+                                    "Weight: ${bird['weight'] ?? 'Unknown'}",
+                                    style: const TextStyle(fontSize: 12),
+                                  ),
+                                ],
+                              ],
                             ),
                           ),
                         ],

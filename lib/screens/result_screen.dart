@@ -12,6 +12,8 @@ class ResultScreen extends StatelessWidget {
   final String conservationStatus;
   final String? birdImageUrl;
   final String? localImagePath;
+  final String size; // Add this
+  final String weight; // Add this
 
   const ResultScreen({
     Key? key,
@@ -25,6 +27,8 @@ class ResultScreen extends StatelessWidget {
     required this.conservationStatus,
     this.birdImageUrl,
     this.localImagePath,
+    required this.size, // Add this
+    required this.weight, // Add this
   }) : super(key: key);
 
   @override
@@ -69,6 +73,8 @@ class ResultScreen extends StatelessWidget {
             _infoCard("Habitat", habitat),
             _infoCard("Diet", diet),
             _infoCard("Conservation Status", conservationStatus),
+            _infoCard("Size", size), // Add this
+            _infoCard("Weight", weight), // Add this
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () => Navigator.pop(context),
