@@ -18,9 +18,8 @@ class _BirdDexScreenState extends State<BirdDexScreen> {
   List<dynamic> allBirds = [];
   String searchQuery = "";
   String filter = "All"; // All, Collected, Uncollected
-  String sortOption = "Alphabetical"; // Alphabetical, Date Collected
+  String sortOption = "Alphabetical"; // Alphabetical, Date Collected, Weight
   String sizeFilter = "All"; // All, Small, Medium, Large
-  String weightFilter = "All"; // All, Custom
 
   @override
   void initState() {
@@ -116,21 +115,7 @@ class _BirdDexScreenState extends State<BirdDexScreen> {
           .toList();
     }
 
-    // 4️⃣ Filter by weight (example: show only birds heavier than 1kg)
-    if (weightFilter == "Heavy (>1kg)") {
-      filteredBirds = filteredBirds.where((bird) {
-        final weightStr = bird['weight'] ?? '';
-        // crude check: if weight contains "kg" and first number > 1
-        final match = RegExp(r'(\d+(\.\d+)?)\s*kg').firstMatch(weightStr);
-        if (match != null) {
-          final weightVal = double.tryParse(match.group(1) ?? '0') ?? 0;
-          return weightVal > 1.0;
-        }
-        return false;
-      }).toList();
-    }
-
-    // 5️⃣ Sort the list
+    // 4️⃣ Sort the list
     if (sortOption == "Alphabetical") {
       filteredBirds.sort(
         (a, b) => a['commonName'].toLowerCase().compareTo(
@@ -146,6 +131,27 @@ class _BirdDexScreenState extends State<BirdDexScreen> {
             ? DateTime.tryParse(b['dateIdentified']) ?? DateTime(1900)
             : DateTime(1900);
         return dateB.compareTo(dateA);
+      });
+    } else if (sortOption == "Weight") {
+      filteredBirds.sort((a, b) {
+        double parseWeight(String? weightStr) {
+          if (weightStr == null) return 0;
+          // Try to extract the first number (kg or g)
+          final kgMatch = RegExp(r'(\d+(\.\d+)?)\s*kg').firstMatch(weightStr);
+          if (kgMatch != null) {
+            return double.tryParse(kgMatch.group(1) ?? '0') ?? 0;
+          }
+          final gMatch = RegExp(r'(\d+(\.\d+)?)\s*g').firstMatch(weightStr);
+          if (gMatch != null) {
+            // Convert grams to kg for sorting
+            return (double.tryParse(gMatch.group(1) ?? '0') ?? 0) / 1000.0;
+          }
+          return 0;
+        }
+
+        final weightA = parseWeight(a['weight']);
+        final weightB = parseWeight(b['weight']);
+        return weightB.compareTo(weightA); // Descending order
       });
     }
 
@@ -243,6 +249,10 @@ class _BirdDexScreenState extends State<BirdDexScreen> {
                       value: "Date Collected",
                       child: Text("By Date"),
                     ),
+                    DropdownMenuItem(
+                      value: "Weight",
+                      child: Text("By Weight"),
+                    ),
                   ],
                   onChanged: (value) {
                     setState(() {
@@ -267,16 +277,6 @@ class _BirdDexScreenState extends State<BirdDexScreen> {
                     )
                     .toList(),
                 onChanged: (val) => setState(() => sizeFilter = val ?? "All"),
-              ),
-              DropdownButton<String>(
-                value: weightFilter,
-                items: ["All", "Heavy (>1kg)"]
-                    .map(
-                      (w) =>
-                          DropdownMenuItem(value: w, child: Text("Weight: $w")),
-                    )
-                    .toList(),
-                onChanged: (val) => setState(() => weightFilter = val ?? "All"),
               ),
             ],
           ),
