@@ -46,25 +46,51 @@ class _BirdDexScreenState extends State<BirdDexScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Merge static birds + collected data
-    final mergedBirds = allBirds.map((bird) {
-      final collected = birddexBox.containsKey(bird['commonName']);
-      final savedBird = collected ? birddexBox.get(bird['commonName']) : null;
+    // Get all birds from Hive
+    final hiveBirds = birddexBox.toMap().values.toList();
 
-      return {
-        'commonName': bird['commonName'],
-        'scientificName': bird['scientificName'],
-        'imageUrl': bird['imageUrl'],
-        'localImagePath': savedBird?['localImagePath'],
-        'collected': collected,
-        'confidence': savedBird?['confidence'] ?? 0.0,
-        'description': savedBird?['description'] ?? '',
-        'habitat': savedBird?['habitat'] ?? '',
-        'diet': savedBird?['diet'] ?? '',
-        'conservationStatus': savedBird?['conservationStatus'] ?? '',
-        'dateIdentified': savedBird?['dateIdentified'],
-      };
-    }).toList();
+    // Merge static birds + collected data
+    final mergedBirds = [
+      ...allBirds.map((bird) {
+        final collected = birddexBox.containsKey(bird['commonName']);
+        final savedBird = collected ? birddexBox.get(bird['commonName']) : null;
+
+        return {
+          'commonName': bird['commonName'],
+          'scientificName': bird['scientificName'],
+          'imageUrl': bird['imageUrl'],
+          'localImagePath': savedBird?['localImagePath'],
+          'collected': collected,
+          'confidence': savedBird?['confidence'] ?? 0.0,
+          'description': savedBird?['description'] ?? '',
+          'habitat': savedBird?['habitat'] ?? '',
+          'diet': savedBird?['diet'] ?? '',
+          'conservationStatus': savedBird?['conservationStatus'] ?? '',
+          'dateIdentified': savedBird?['dateIdentified'],
+        };
+      }),
+      // Add birds that are in Hive but not in allBirds
+      ...hiveBirds
+          .where(
+            (bird) =>
+                !allBirds.any((b) => b['commonName'] == bird['commonName']),
+          )
+          .map(
+            (bird) => {
+              'commonName': bird['commonName'],
+              'scientificName': bird['scientificName'],
+              'imageUrl': bird['imageUrl'] ?? bird['localImagePath'],
+              'localImagePath': bird['localImagePath'],
+              'collected': true,
+              'confidence': bird['confidence'] ?? 0.0,
+              'description': bird['description'] ?? '',
+              'habitat': bird['habitat'] ?? '',
+              'diet': bird['diet'] ?? '',
+              'conservationStatus': bird['conservationStatus'] ?? '',
+              'dateIdentified': bird['dateIdentified'],
+            },
+          ),
+    ];
 
     // 1️⃣ Filter by search
     List<Map<String, dynamic>> filteredBirds = mergedBirds.where((bird) {
