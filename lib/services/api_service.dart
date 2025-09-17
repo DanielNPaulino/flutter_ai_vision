@@ -33,7 +33,9 @@ class ApiService {
               "  \"description\": \"<short description>\",\n"
               "  \"habitat\": \"<primary habitat>\",\n"
               "  \"diet\": \"<diet info>\",\n"
-              "  \"conservation_status\": \"<IUCN status>\"\n"
+              "  \"conservation_status\": \"<IUCN status>\",\n"
+              "  \"size\": \"<size: Small/Medium/Large>\",\n"
+              "  \"weight\": \"<weight range, e.g. 70-100 g or 3-6.7 kg>\"\n"
               "}\n\nNo extra text.",
         },
         {
@@ -87,6 +89,8 @@ class ApiService {
       "habitat": parsedJson["habitat"] ?? "Unknown",
       "diet": parsedJson["diet"] ?? "Unknown",
       "conservation_status": parsedJson["conservation_status"] ?? "Unknown",
+      "size": parsedJson["size"] ?? "Unknown",
+      "weight": parsedJson["weight"] ?? "Unknown",
       "imageUrl": wikiImageUrl,
     };
   }

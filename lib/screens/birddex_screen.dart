@@ -70,11 +70,15 @@ class _BirdDexScreenState extends State<BirdDexScreen> {
           )
           .map(
             (bird) => {
-              'commonName': bird['commonName'],
-              'scientificName': bird['scientificName'],
-              'imageUrl': bird['imageUrl'] ?? bird['localImagePath'],
-              'size': bird['size'] ?? '',
-              'weight': bird['weight'] ?? '',
+              'commonName': bird['commonName'] ?? 'Unknown',
+              'scientificName': bird['scientificName'] ?? 'Unknown',
+              'imageUrl': bird['imageUrl'] ?? bird['localImagePath'] ?? '',
+              'size': (bird['size'] is String && bird['size']!.isNotEmpty)
+                  ? bird['size']
+                  : 'Unknown',
+              'weight': (bird['weight'] is String && bird['weight']!.isNotEmpty)
+                  ? bird['weight']
+                  : 'Unknown',
               'localImagePath': bird['localImagePath'],
               'collected': true,
               'confidence': bird['confidence'] ?? 0.0,
