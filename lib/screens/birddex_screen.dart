@@ -19,6 +19,8 @@ class _BirdDexScreenState extends State<BirdDexScreen> {
   String searchQuery = "";
   String filter = "All"; // All, Collected, Uncollected
   String sortOption = "Alphabetical"; // Alphabetical, Date Collected
+  String sizeFilter = "All"; // All, Small, Medium, Large
+  String weightFilter = "All"; // All, Custom
 
   @override
   void initState() {
@@ -35,10 +37,8 @@ class _BirdDexScreenState extends State<BirdDexScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Get all birds from Hive
     final hiveBirds = birddexBox.toMap().values.toList();
 
-    // Merge static birds + collected data
     final mergedBirds = [
       ...allBirds.map((bird) {
         final collected = birddexBox.containsKey(bird['commonName']);
@@ -48,6 +48,8 @@ class _BirdDexScreenState extends State<BirdDexScreen> {
           'commonName': bird['commonName'],
           'scientificName': bird['scientificName'],
           'imageUrl': bird['imageUrl'],
+          'size': bird['size'],
+          'weight': bird['weight'],
           'localImagePath': savedBird?['localImagePath'],
           'collected': collected,
           'confidence': savedBird?['confidence'] ?? 0.0,
@@ -58,13 +60,14 @@ class _BirdDexScreenState extends State<BirdDexScreen> {
           'dateIdentified': savedBird?['dateIdentified'],
         };
       }),
-      // Add birds that are in Hive but not in allBirds
       ...hiveBirds.where((bird) =>
         !allBirds.any((b) => b['commonName'] == bird['commonName'])
       ).map((bird) => {
         'commonName': bird['commonName'],
         'scientificName': bird['scientificName'],
         'imageUrl': bird['imageUrl'] ?? bird['localImagePath'],
+        'size': bird['size'] ?? '',
+        'weight': bird['weight'] ?? '',
         'localImagePath': bird['localImagePath'],
         'collected': true,
         'confidence': bird['confidence'] ?? 0.0,
@@ -94,7 +97,28 @@ class _BirdDexScreenState extends State<BirdDexScreen> {
           .toList();
     }
 
-    // 3️⃣ Sort the list
+    // 3️⃣ Filter by size
+    if (sizeFilter != "All") {
+      filteredBirds = filteredBirds
+          .where((bird) => bird['size'] == sizeFilter)
+          .toList();
+    }
+
+    // 4️⃣ Filter by weight (example: show only birds heavier than 1kg)
+    if (weightFilter == "Heavy (>1kg)") {
+      filteredBirds = filteredBirds.where((bird) {
+        final weightStr = bird['weight'] ?? '';
+        // crude check: if weight contains "kg" and first number > 1
+        final match = RegExp(r'(\d+(\.\d+)?)\s*kg').firstMatch(weightStr);
+        if (match != null) {
+          final weightVal = double.tryParse(match.group(1) ?? '0') ?? 0;
+          return weightVal > 1.0;
+        }
+        return false;
+      }).toList();
+    }
+
+    // 5️⃣ Sort the list
     if (sortOption == "Alphabetical") {
       filteredBirds.sort(
         (a, b) => a['commonName'].toLowerCase().compareTo(
@@ -216,6 +240,27 @@ class _BirdDexScreenState extends State<BirdDexScreen> {
                 ),
               ],
             ),
+          ),
+
+          // --- Add filter dropdowns ---
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              DropdownButton<String>(
+                value: sizeFilter,
+                items: ["All", "Small", "Medium", "Large"]
+                    .map((s) => DropdownMenuItem(value: s, child: Text("Size: $s")))
+                    .toList(),
+                onChanged: (val) => setState(() => sizeFilter = val ?? "All"),
+              ),
+              DropdownButton<String>(
+                value: weightFilter,
+                items: ["All", "Heavy (>1kg)"]
+                    .map((w) => DropdownMenuItem(value: w, child: Text("Weight: $w")))
+                    .toList(),
+                onChanged: (val) => setState(() => weightFilter = val ?? "All"),
+              ),
+            ],
           ),
 
           // Grid of birds

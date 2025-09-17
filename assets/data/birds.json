@@ -4,6 +4,7 @@
     "scientificName": "Aquila chrysaetos",
     "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/015_Wild_Golden_Eagle_in_flight_at_Pfyn-Finges_%28Switzerland%29_Photo_by_Giles_Laurent.jpg/500px-015_Wild_Golden_Eagle_in_flight_at_Pfyn-Finges_%28Switzerland%29_Photo_by_Giles_Laurent.jpg",
     "size": "Large",
+    "weight": "3-6.7 kg",
     "habitat": "Mountains, cliffs, open country",
     "diet": "Mammals, birds, carrion",
     "conservationStatus": "Least Concern"
@@ -13,6 +14,7 @@
     "scientificName": "Haliaeetus leucocephalus",
     "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/d/db/Bald_eagle_about_to_fly_in_Alaska_%282016%29.jpg",
     "size": "Large",
+    "weight": "3-6.3 kg",
     "habitat": "Near rivers and large lakes",
     "diet": "Fish, birds, mammals",
     "conservationStatus": "Least Concern"
@@ -22,6 +24,7 @@
     "scientificName": "Falco peregrinus",
     "imageUrl": "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcSXiPXxI1ISyqmeIqLaFh12Iq7HtIwdJnADHLqov2NGEyhQBX_oH1Uc_kpj2JCS8O-t2AKHKevpM5LIYp_MIRl0TPa9CMUnatJuQym-004",
     "size": "Medium",
+    "weight": "0.7-1.5 kg",
     "habitat": "Cliffs, urban areas",
     "diet": "Birds",
     "conservationStatus": "Least Concern"
@@ -31,6 +34,7 @@
     "scientificName": "Erithacus rubecula",
     "imageUrl": "https://miro.medium.com/v2/resize:fit:2000/format:webp/1*OGBB0q4h6NbXrzVCGyqEVA.jpeg",
     "size": "Small",
+    "weight": "16-22 g",
     "habitat": "Gardens, woodlands",
     "diet": "Insects, worms",
     "conservationStatus": "Least Concern"
@@ -40,6 +44,7 @@
     "scientificName": "Cyanocitta cristata",
     "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Blue_jay_in_PP_%2830960%29.jpg/800px-Blue_jay_in_PP_%2830960%29.jpg",
     "size": "Medium",
+    "weight": "70-100 g",
     "habitat": "Forests, gardens",
     "diet": "Nuts, seeds, insects",
     "conservationStatus": "Least Concern"
