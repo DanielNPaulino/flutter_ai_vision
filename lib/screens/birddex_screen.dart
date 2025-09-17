@@ -37,26 +37,58 @@ class BirdDexScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final mergedBirds = allBirds.map((bird) {
-      final collected = birddexBox.containsKey(bird['commonName']);
-      final savedBird = collected ? birddexBox.get(bird['commonName']) : null;
+    // 1. Start with static birds
+    final mergedBirds = List<Map<String, dynamic>>.from(
+      allBirds.map((bird) {
+        final collected = birddexBox.containsKey(bird['commonName']);
+        final savedBird = collected ? birddexBox.get(bird['commonName']) : null;
 
-      return {
-        'commonName': bird['commonName'],
-        'scientificName': bird['scientificName'],
-        'imageUrl': bird['imageUrl'],
-        'localImagePath': savedBird?['localImagePath'],
-        'collected': collected,
-        'confidence': savedBird?['confidence'] ?? 0.0,
-        'description': savedBird?['description'] ?? '',
-        'habitat': savedBird?['habitat'] ?? '',
-        'diet': savedBird?['diet'] ?? '',
-        'conservationStatus': savedBird?['conservationStatus'] ?? '',
-      };
-    }).toList();
+        return {
+          'commonName': bird['commonName'],
+          'scientificName': bird['scientificName'],
+          'imageUrl': bird['imageUrl'],
+          'localImagePath': savedBird?['localImagePath'],
+          'collected': collected,
+          'confidence': (savedBird?['confidence'] ?? 0.0) as double,
+          'description': savedBird?['description'] ?? '',
+          'habitat': savedBird?['habitat'] ?? '',
+          'diet': savedBird?['diet'] ?? '',
+          'conservationStatus': savedBird?['conservationStatus'] ?? '',
+        };
+      }),
+    );
+
+    // 2. Add NEW birds detected by AI that are NOT in the static list
+    for (var key in birddexBox.keys) {
+      final savedBird = birddexBox.get(key);
+      final alreadyExists = mergedBirds.any(
+        (bird) => bird['commonName'].toLowerCase() == key.toLowerCase(),
+      );
+
+      if (!alreadyExists) {
+        mergedBirds.add({
+          'commonName': savedBird['commonName'],
+          'scientificName': savedBird['scientificName'],
+          'imageUrl': savedBird['imageUrl'], // Wikipedia image
+          'localImagePath': savedBird['localImagePath'], // Local photo
+          'collected': true,
+          'confidence': savedBird['confidence'],
+          'description': savedBird['description'],
+          'habitat': savedBird['habitat'],
+          'diet': savedBird['diet'],
+          'conservationStatus': savedBird['conservationStatus'],
+        });
+      }
+    }
+
+    // 3. Calculate progress
+    final collectedCount = mergedBirds
+        .where((b) => b['collected'] == true)
+        .length;
+    final totalCount = mergedBirds.length;
 
     return Scaffold(
-      appBar: AppBar(title: const Text("BirdDex")),
+      appBar: AppBar(title: Text("BirdDex ($collectedCount / $totalCount)")),
       body: GridView.builder(
         padding: const EdgeInsets.all(16),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -77,7 +109,9 @@ class BirdDexScreen extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (_) => ResultScreen(
-                          image: File(''),
+                          image: bird['localImagePath'] != null
+                              ? File(bird['localImagePath'])
+                              : File(''),
                           commonName: bird['commonName'],
                           scientificName: bird['scientificName'],
                           confidence: bird['confidence'],
@@ -106,14 +140,27 @@ class BirdDexScreen extends StatelessWidget {
                         borderRadius: const BorderRadius.vertical(
                           top: Radius.circular(12),
                         ),
-                        child: collected && bird['localImagePath'] != null
-                            ? Image.file(
-                                File(bird['localImagePath']),
-                                fit: BoxFit.cover,
-                              )
+                        child: collected
+                            ? (bird['localImagePath'] != null
+                                  ? Image.file(
+                                      File(bird['localImagePath']),
+                                      fit: BoxFit.cover,
+                                    )
+                                  : Image.network(
+                                      bird['imageUrl'],
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) =>
+                                              const Icon(
+                                                Icons.broken_image,
+                                                size: 50,
+                                              ),
+                                    ))
                             : Image.network(
                                 bird['imageUrl'],
                                 fit: BoxFit.cover,
+                                color: Colors.black.withOpacity(0.5),
+                                colorBlendMode: BlendMode.darken,
                                 errorBuilder: (context, error, stackTrace) =>
                                     const Icon(Icons.broken_image, size: 50),
                               ),

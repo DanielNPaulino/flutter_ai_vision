@@ -1,0 +1,47 @@
+[
+  {
+    "commonName": "Golden Eagle",
+    "scientificName": "Aquila chrysaetos",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/015_Wild_Golden_Eagle_in_flight_at_Pfyn-Finges_%28Switzerland%29_Photo_by_Giles_Laurent.jpg/500px-015_Wild_Golden_Eagle_in_flight_at_Pfyn-Finges_%28Switzerland%29_Photo_by_Giles_Laurent.jpg",
+    "size": "Large",
+    "habitat": "Mountains, cliffs, open country",
+    "diet": "Mammals, birds, carrion",
+    "conservationStatus": "Least Concern"
+  },
+  {
+    "commonName": "Bald Eagle",
+    "scientificName": "Haliaeetus leucocephalus",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/d/db/Bald_eagle_about_to_fly_in_Alaska_%282016%29.jpg",
+    "size": "Large",
+    "habitat": "Near rivers and large lakes",
+    "diet": "Fish, birds, mammals",
+    "conservationStatus": "Least Concern"
+  },
+  {
+    "commonName": "Peregrine Falcon",
+    "scientificName": "Falco peregrinus",
+    "imageUrl": "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcSXiPXxI1ISyqmeIqLaFh12Iq7HtIwdJnADHLqov2NGEyhQBX_oH1Uc_kpj2JCS8O-t2AKHKevpM5LIYp_MIRl0TPa9CMUnatJuQym-004",
+    "size": "Medium",
+    "habitat": "Cliffs, urban areas",
+    "diet": "Birds",
+    "conservationStatus": "Least Concern"
+  },
+  {
+    "commonName": "European Robin",
+    "scientificName": "Erithacus rubecula",
+    "imageUrl": "https://miro.medium.com/v2/resize:fit:2000/format:webp/1*OGBB0q4h6NbXrzVCGyqEVA.jpeg",
+    "size": "Small",
+    "habitat": "Gardens, woodlands",
+    "diet": "Insects, worms",
+    "conservationStatus": "Least Concern"
+  },
+  {
+    "commonName": "Blue Jay",
+    "scientificName": "Cyanocitta cristata",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Blue_jay_in_PP_%2830960%29.jpg/800px-Blue_jay_in_PP_%2830960%29.jpg",
+    "size": "Medium",
+    "habitat": "Forests, gardens",
+    "diet": "Nuts, seeds, insects",
+    "conservationStatus": "Least Concern"
+  }
+]
