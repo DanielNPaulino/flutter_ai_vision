@@ -12,7 +12,8 @@ class BirdDexScreen extends StatefulWidget {
   _BirdDexScreenState createState() => _BirdDexScreenState();
 }
 
-class _BirdDexScreenState extends State<BirdDexScreen> {
+class _BirdDexScreenState extends State<BirdDexScreen>
+    with SingleTickerProviderStateMixin {
   final Box birddexBox = Hive.box('birddex');
 
   List<dynamic> allBirds = [];
@@ -38,6 +39,7 @@ class _BirdDexScreenState extends State<BirdDexScreen> {
   Widget build(BuildContext context) {
     final hiveBirds = birddexBox.toMap().values.toList();
 
+    /// Merge JSON birds with collected Hive data
     final mergedBirds = [
       ...allBirds.map((bird) {
         final collected = birddexBox.containsKey(bird['commonName']);
@@ -90,14 +92,14 @@ class _BirdDexScreenState extends State<BirdDexScreen> {
           ),
     ];
 
-    // 1️⃣ Filter by search
+    // Filter by search
     List<Map<String, dynamic>> filteredBirds = mergedBirds.where((bird) {
       final searchLower = searchQuery.toLowerCase();
       return bird['commonName'].toLowerCase().contains(searchLower) ||
           bird['scientificName'].toLowerCase().contains(searchLower);
     }).toList();
 
-    // 2️⃣ Filter by collected state
+    // Filter by collected state
     if (filter == "Collected") {
       filteredBirds = filteredBirds
           .where((bird) => bird['collected'] == true)
@@ -108,14 +110,14 @@ class _BirdDexScreenState extends State<BirdDexScreen> {
           .toList();
     }
 
-    // 3️⃣ Filter by size
+    // Filter by size
     if (sizeFilter != "All") {
       filteredBirds = filteredBirds
           .where((bird) => bird['size'] == sizeFilter)
           .toList();
     }
 
-    // 4️⃣ Sort the list
+    // Sorting
     if (sortOption == "Alphabetical") {
       filteredBirds.sort(
         (a, b) => a['commonName'].toLowerCase().compareTo(
@@ -136,14 +138,12 @@ class _BirdDexScreenState extends State<BirdDexScreen> {
       filteredBirds.sort((a, b) {
         double parseWeight(String? weightStr) {
           if (weightStr == null) return 0;
-          // Try to extract the first number (kg or g)
           final kgMatch = RegExp(r'(\d+(\.\d+)?)\s*kg').firstMatch(weightStr);
           if (kgMatch != null) {
             return double.tryParse(kgMatch.group(1) ?? '0') ?? 0;
           }
           final gMatch = RegExp(r'(\d+(\.\d+)?)\s*g').firstMatch(weightStr);
           if (gMatch != null) {
-            // Convert grams to kg for sorting
             return (double.tryParse(gMatch.group(1) ?? '0') ?? 0) / 1000.0;
           }
           return 0;
@@ -151,7 +151,7 @@ class _BirdDexScreenState extends State<BirdDexScreen> {
 
         final weightA = parseWeight(a['weight']);
         final weightB = parseWeight(b['weight']);
-        return weightB.compareTo(weightA); // Descending order
+        return weightB.compareTo(weightA);
       });
     }
 
@@ -187,98 +187,126 @@ class _BirdDexScreenState extends State<BirdDexScreen> {
             ),
           ),
 
-          // Search and Filters
+          // Filters and Search
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Search Bar
-                Expanded(
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: "Search birds...",
-                      prefixIcon: const Icon(Icons.search),
-                      filled: true,
-                      fillColor: Colors.grey[200],
-                      contentPadding: const EdgeInsets.symmetric(
-                        vertical: 0,
-                        horizontal: 16,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
+                TextField(
+                  decoration: InputDecoration(
+                    hintText: "Search birds...",
+                    prefixIcon: const Icon(Icons.search),
+                    filled: true,
+                    fillColor: Colors.grey[100],
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 0,
+                      horizontal: 16,
                     ),
-                    onChanged: (value) {
-                      setState(() {
-                        searchQuery = value;
-                      });
-                    },
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                  onChanged: (value) {
+                    setState(() {
+                      searchQuery = value;
+                    });
+                  },
+                ),
+
+                const SizedBox(height: 12),
+
+                // Collected Filter Chips
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      _buildFilterChip(
+                        "All",
+                        filter == "All",
+                        () => setState(() => filter = "All"),
+                      ),
+                      const SizedBox(width: 8),
+                      _buildFilterChip(
+                        "Collected",
+                        filter == "Collected",
+                        () => setState(() => filter = "Collected"),
+                      ),
+                      const SizedBox(width: 8),
+                      _buildFilterChip(
+                        "Uncollected",
+                        filter == "Uncollected",
+                        () => setState(() => filter = "Uncollected"),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(width: 8),
 
-                // Filter Dropdown
-                DropdownButton<String>(
-                  value: filter,
-                  items: const [
-                    DropdownMenuItem(value: "All", child: Text("All")),
-                    DropdownMenuItem(
-                      value: "Collected",
-                      child: Text("Collected"),
-                    ),
-                    DropdownMenuItem(
-                      value: "Uncollected",
-                      child: Text("Uncollected"),
-                    ),
-                  ],
-                  onChanged: (value) {
-                    setState(() {
-                      filter = value!;
-                    });
-                  },
+                const SizedBox(height: 12),
+
+                // Size Filter Chips
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      _buildFilterChip(
+                        "All Sizes",
+                        sizeFilter == "All",
+                        () => setState(() => sizeFilter = "All"),
+                      ),
+                      const SizedBox(width: 8),
+                      _buildFilterChip(
+                        "Small",
+                        sizeFilter == "Small",
+                        () => setState(() => sizeFilter = "Small"),
+                      ),
+                      const SizedBox(width: 8),
+                      _buildFilterChip(
+                        "Medium",
+                        sizeFilter == "Medium",
+                        () => setState(() => sizeFilter = "Medium"),
+                      ),
+                      const SizedBox(width: 8),
+                      _buildFilterChip(
+                        "Large",
+                        sizeFilter == "Large",
+                        () => setState(() => sizeFilter = "Large"),
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(width: 8),
 
-                // Sort Dropdown
-                DropdownButton<String>(
-                  value: sortOption,
-                  items: const [
-                    DropdownMenuItem(value: "Alphabetical", child: Text("A-Z")),
-                    DropdownMenuItem(
-                      value: "Date Collected",
-                      child: Text("By Date"),
-                    ),
-                    DropdownMenuItem(
-                      value: "Weight",
-                      child: Text("By Weight"),
-                    ),
-                  ],
-                  onChanged: (value) {
-                    setState(() {
-                      sortOption = value!;
-                    });
-                  },
+                const SizedBox(height: 12),
+
+                // Sort Option Chips
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      _buildSortChip(
+                        "A-Z",
+                        sortOption == "Alphabetical",
+                        () => setState(() => sortOption = "Alphabetical"),
+                      ),
+                      const SizedBox(width: 8),
+                      _buildSortChip(
+                        "Date",
+                        sortOption == "Date Collected",
+                        () => setState(() => sortOption = "Date Collected"),
+                      ),
+                      const SizedBox(width: 8),
+                      _buildSortChip(
+                        "Weight",
+                        sortOption == "Weight",
+                        () => setState(() => sortOption = "Weight"),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
-          ),
-
-          // --- Add filter dropdowns ---
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              DropdownButton<String>(
-                value: sizeFilter,
-                items: ["All", "Small", "Medium", "Large"]
-                    .map(
-                      (s) =>
-                          DropdownMenuItem(value: s, child: Text("Size: $s")),
-                    )
-                    .toList(),
-                onChanged: (val) => setState(() => sizeFilter = val ?? "All"),
-              ),
-            ],
           ),
 
           // Grid of birds
@@ -313,9 +341,8 @@ class _BirdDexScreenState extends State<BirdDexScreen> {
                                 conservationStatus: bird['conservationStatus'],
                                 birdImageUrl: bird['imageUrl'],
                                 localImagePath: bird['localImagePath'],
-                                size: bird['size'] ?? 'Unknown', // <-- Added
-                                weight:
-                                    bird['weight'] ?? 'Unknown', // <-- Added
+                                size: bird['size'] ?? 'Unknown',
+                                weight: bird['weight'] ?? 'Unknown',
                               ),
                             ),
                           );
@@ -389,6 +416,45 @@ class _BirdDexScreenState extends State<BirdDexScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  /// --- Helper Widgets for Chips ---
+  Widget _buildFilterChip(
+    String label,
+    bool isSelected,
+    VoidCallback onSelected,
+  ) {
+    return ChoiceChip(
+      label: Text(label),
+      selected: isSelected,
+      onSelected: (_) => onSelected(),
+      selectedColor: Colors.green[400],
+      backgroundColor: Colors.grey[200],
+      labelStyle: TextStyle(
+        color: isSelected ? Colors.white : Colors.black,
+        fontWeight: FontWeight.bold,
+      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+    );
+  }
+
+  Widget _buildSortChip(
+    String label,
+    bool isSelected,
+    VoidCallback onSelected,
+  ) {
+    return FilterChip(
+      label: Text(label),
+      selected: isSelected,
+      onSelected: (_) => onSelected(),
+      selectedColor: Colors.blue[400],
+      backgroundColor: Colors.grey[200],
+      labelStyle: TextStyle(
+        color: isSelected ? Colors.white : Colors.black,
+        fontWeight: FontWeight.w600,
+      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
     );
   }
 }
