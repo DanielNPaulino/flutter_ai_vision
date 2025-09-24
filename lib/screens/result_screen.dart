@@ -204,29 +204,6 @@ class _ResultScreenState extends State<ResultScreen>
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        // Floating buttons for actions
-        bottomNavigationBar: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: ElevatedButton.icon(
-            onPressed: () {
-              setState(() => _isFavorite = !_isFavorite);
-              final msg = _isFavorite
-                  ? 'Added to favorites'
-                  : 'Removed from favorites';
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(msg)));
-            },
-            icon: Icon(_isFavorite ? Icons.favorite : Icons.favorite_border),
-            label: const Text('Favorite'),
-            style: ElevatedButton.styleFrom(
-              minimumSize: const Size.fromHeight(48),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
-          ),
-        ),
         body: Column(
           children: [
             // Top image section
@@ -589,42 +566,45 @@ class _ResultScreenState extends State<ResultScreen>
   }
 
   Widget _statBadge(IconData icon, String label, String value) {
-  return Flexible(
-    fit: FlexFit.tight,
-    child: Container(
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
-      decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, size: 18),
-          const SizedBox(width: 6),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: const TextStyle(fontSize: 11, color: Colors.black54),
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  value,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                ),
-              ],
+    return Flexible(
+      fit: FlexFit.tight,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+        decoration: BoxDecoration(
+          color: Colors.grey[100],
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, size: 18),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: const TextStyle(fontSize: 11, color: Colors.black54),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    value,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _statusBadge(String status, Color color) {
     return Container(
