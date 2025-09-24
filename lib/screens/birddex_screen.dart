@@ -15,6 +15,7 @@ class BirdDexScreen extends StatefulWidget {
 class _BirdDexScreenState extends State<BirdDexScreen>
     with SingleTickerProviderStateMixin {
   final Box birddexBox = Hive.box('birddex');
+  final Box favoritesBox = Hive.box('favorites');
 
   List<dynamic> allBirds = [];
   String searchQuery = "";
@@ -44,6 +45,7 @@ class _BirdDexScreenState extends State<BirdDexScreen>
       ...allBirds.map((bird) {
         final collected = birddexBox.containsKey(bird['commonName']);
         final savedBird = collected ? birddexBox.get(bird['commonName']) : null;
+        final isFavorite = favoritesBox.get(bird['scientificName'], defaultValue: false);
 
         return {
           'commonName': bird['commonName'],
@@ -62,6 +64,7 @@ class _BirdDexScreenState extends State<BirdDexScreen>
               bird['conservationStatus'] ??
               '',
           'dateIdentified': savedBird?['dateIdentified'],
+          'isFavorite': isFavorite,
         };
       }),
       ...hiveBirds
@@ -70,24 +73,28 @@ class _BirdDexScreenState extends State<BirdDexScreen>
                 !allBirds.any((b) => b['commonName'] == bird['commonName']),
           )
           .map(
-            (bird) => {
-              'commonName': bird['commonName'] ?? 'Unknown',
-              'scientificName': bird['scientificName'] ?? 'Unknown',
-              'imageUrl': bird['imageUrl'] ?? bird['localImagePath'] ?? '',
-              'size': (bird['size'] is String && bird['size']!.isNotEmpty)
-                  ? bird['size']
-                  : 'Unknown',
-              'weight': (bird['weight'] is String && bird['weight']!.isNotEmpty)
-                  ? bird['weight']
-                  : 'Unknown',
-              'localImagePath': bird['localImagePath'],
-              'collected': true,
-              'confidence': bird['confidence'] ?? 0.0,
-              'description': bird['description'] ?? '',
-              'habitat': bird['habitat'] ?? '',
-              'diet': bird['diet'] ?? '',
-              'conservationStatus': bird['conservationStatus'] ?? '',
-              'dateIdentified': bird['dateIdentified'],
+            (bird) {
+              final isFavorite = favoritesBox.get(bird['scientificName'], defaultValue: false);
+              return {
+                'commonName': bird['commonName'] ?? 'Unknown',
+                'scientificName': bird['scientificName'] ?? 'Unknown',
+                'imageUrl': bird['imageUrl'] ?? bird['localImagePath'] ?? '',
+                'size': (bird['size'] is String && bird['size']!.isNotEmpty)
+                    ? bird['size']
+                    : 'Unknown',
+                'weight': (bird['weight'] is String && bird['weight']!.isNotEmpty)
+                    ? bird['weight']
+                    : 'Unknown',
+                'localImagePath': bird['localImagePath'],
+                'collected': true,
+                'confidence': bird['confidence'] ?? 0.0,
+                'description': bird['description'] ?? '',
+                'habitat': bird['habitat'] ?? '',
+                'diet': bird['diet'] ?? '',
+                'conservationStatus': bird['conservationStatus'] ?? '',
+                'dateIdentified': bird['dateIdentified'],
+                'isFavorite': isFavorite,
+              };
             },
           ),
     ];
@@ -355,57 +362,67 @@ class _BirdDexScreenState extends State<BirdDexScreen>
                         borderRadius: BorderRadius.circular(12),
                       ),
                       elevation: 4,
-                      child: Column(
+                      child: Stack(
                         children: [
-                          Expanded(
-                            child: ClipRRect(
-                              borderRadius: const BorderRadius.vertical(
-                                top: Radius.circular(12),
-                              ),
-                              child: collected && bird['localImagePath'] != null
-                                  ? Image.file(
-                                      File(bird['localImagePath']),
-                                      fit: BoxFit.cover,
-                                    )
-                                  : Image.network(
-                                      bird['imageUrl'],
-                                      fit: BoxFit.cover,
-                                      errorBuilder:
-                                          (context, error, stackTrace) =>
-                                              const Icon(
-                                                Icons.broken_image,
-                                                size: 50,
-                                              ),
-                                    ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Column(
-                              children: [
-                                Text(
-                                  collected ? bird['commonName'] : "???",
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: collected
-                                        ? Colors.black
-                                        : Colors.grey,
+                          Column(
+                            children: [
+                              Expanded(
+                                child: ClipRRect(
+                                  borderRadius: const BorderRadius.vertical(
+                                    top: Radius.circular(12),
                                   ),
+                                  child: collected && bird['localImagePath'] != null
+                                      ? Image.file(
+                                          File(bird['localImagePath']),
+                                          fit: BoxFit.cover,
+                                        )
+                                      : Image.network(
+                                          bird['imageUrl'],
+                                          fit: BoxFit.cover,
+                                          errorBuilder:
+                                              (context, error, stackTrace) =>
+                                                  const Icon(
+                                                    Icons.broken_image,
+                                                    size: 50,
+                                                  ),
+                                        ),
                                 ),
-                                if (collected) ...[
-                                  Text(
-                                    "Size: ${bird['size'] ?? 'Unknown'}",
-                                    style: const TextStyle(fontSize: 12),
-                                  ),
-                                  Text(
-                                    "Weight: ${bird['weight'] ?? 'Unknown'}",
-                                    style: const TextStyle(fontSize: 12),
-                                  ),
-                                ],
-                              ],
-                            ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      collected ? bird['commonName'] : "???",
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: collected
+                                            ? Colors.black
+                                            : Colors.grey,
+                                      ),
+                                    ),
+                                    if (collected) ...[
+                                      Text(
+                                        "Size: ${bird['size'] ?? 'Unknown'}",
+                                        style: const TextStyle(fontSize: 12),
+                                      ),
+                                      Text(
+                                        "Weight: ${bird['weight'] ?? 'Unknown'}",
+                                        style: const TextStyle(fontSize: 12),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
+                          if (bird['isFavorite'] == true)
+                            Positioned(
+                              top: 8,
+                              right: 8,
+                              child: Icon(Icons.favorite, color: Colors.redAccent, size: 24),
+                            ),
                         ],
                       ),
                     ),
