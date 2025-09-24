@@ -52,6 +52,8 @@ class _ResultScreenState extends State<ResultScreen>
   bool _isPlaying = false;
   String? _birdCallUrl;
   bool _loadingAudio = true;
+  Duration _audioPosition = Duration.zero;
+  Duration _audioDuration = Duration.zero;
 
   String get birdId =>
       widget.scientificName; // Use scientific name as unique ID
@@ -72,6 +74,22 @@ class _ResultScreenState extends State<ResultScreen>
     });
     _audioPlayer = AudioPlayer();
     _fetchBirdCall();
+
+    _audioPlayer.positionStream.listen((pos) {
+      setState(() {
+        _audioPosition = pos;
+      });
+    });
+    _audioPlayer.durationStream.listen((dur) {
+      setState(() {
+        _audioDuration = dur ?? Duration.zero;
+      });
+    });
+    _audioPlayer.playerStateStream.listen((state) {
+      setState(() {
+        _isPlaying = state.playing;
+      });
+    });
   }
 
   Future<void> _fetchBirdCall() async {
@@ -126,9 +144,9 @@ class _ResultScreenState extends State<ResultScreen>
 
   Future<void> _togglePlay() async {
     if (_birdCallUrl == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No bird call available')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('No bird call available')));
       return;
     }
 
@@ -598,14 +616,73 @@ class _ResultScreenState extends State<ResultScreen>
               ),
             ),
             // Example button to add in your build method
-            if (_loadingAudio)
-              const CircularProgressIndicator()
-            else
-              ElevatedButton.icon(
-                onPressed: _togglePlay,
-                icon: Icon(_isPlaying ? Icons.pause : Icons.play_arrow),
-                label: Text(_isPlaying ? 'Pause Bird Call' : 'Play Bird Call'),
+            Card(
+              margin: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
               ),
+              elevation: 2,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Bird Call",
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 8),
+                    if (_loadingAudio)
+                      const Center(child: CircularProgressIndicator())
+                    else if (_birdCallUrl == null)
+                      const Text("No bird call available.")
+                    else ...[
+                      Row(
+                        children: [
+                          IconButton(
+                            iconSize: 36,
+                            icon: AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 200),
+                              child: Icon(
+                                _isPlaying
+                                    ? Icons.pause_circle_filled
+                                    : Icons.play_circle_fill,
+                                key: ValueKey(_isPlaying),
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ),
+                            onPressed: _togglePlay,
+                          ),
+                          Expanded(
+                            child: Slider(
+                              value: _audioPosition.inMilliseconds
+                                  .toDouble()
+                                  .clamp(
+                                    0,
+                                    _audioDuration.inMilliseconds.toDouble(),
+                                  ),
+                              min: 0,
+                              max: _audioDuration.inMilliseconds.toDouble() > 0
+                                  ? _audioDuration.inMilliseconds.toDouble()
+                                  : 1,
+                              onChanged: (value) async {
+                                await _audioPlayer.seek(
+                                  Duration(milliseconds: value.toInt()),
+                                );
+                              },
+                            ),
+                          ),
+                          Text(
+                            "${_formatDuration(_audioPosition)} / ${_formatDuration(_audioDuration)}",
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -701,5 +778,12 @@ class _ResultScreenState extends State<ResultScreen>
         ],
       ),
     );
+  }
+
+  String _formatDuration(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+    String twoDigitMinutes = twoDigits(duration.inMinutes.remainder(60));
+    String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
+    return '${twoDigitMinutes}:${twoDigitSeconds}';
   }
 }

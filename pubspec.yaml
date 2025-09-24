@@ -36,13 +36,13 @@ dependencies:
   hive_flutter: 1.1.0
   path_provider: ^2.0.14
   url_launcher: ^6.2.5
-
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
   flutter_dotenv: ^6.0.0
-  http: ^1.5.0
+  http: ^1.5.0         # keep your existing http version or update to ^1.2.0 if needed
   shared_preferences: ^2.5.3
+  just_audio: ^0.9.36  # for playing the audio
 
 dev_dependencies:
   flutter_test:
