@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // for Clipboard
 import 'package:url_launcher/url_launcher.dart'; // add url_launcher in pubspec
+import 'package:hive/hive.dart';
 
 class ResultScreen extends StatefulWidget {
   final File image;
@@ -39,7 +40,64 @@ class ResultScreen extends StatefulWidget {
 
 class _ResultScreenState extends State<ResultScreen>
     with SingleTickerProviderStateMixin {
+  late final Box favoritesBox;
+  late final Box notesBox;
   bool _isFavorite = false;
+  late TextEditingController _notesController;
+  bool _notesChanged = false;
+
+  String get birdId => widget.scientificName; // Use scientific name as unique ID
+
+  @override
+  void initState() {
+    super.initState();
+    favoritesBox = Hive.box('favorites');
+    notesBox = Hive.box('notes');
+    _isFavorite = favoritesBox.get(birdId, defaultValue: false);
+    _notesController = TextEditingController(text: notesBox.get(birdId, defaultValue: ''));
+    _notesController.addListener(() {
+      setState(() {
+        _notesChanged = true;
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    _notesController.dispose();
+    super.dispose();
+  }
+
+  void _toggleFavorite() {
+    setState(() {
+      _isFavorite = !_isFavorite;
+      favoritesBox.put(birdId, _isFavorite);
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(_isFavorite ? 'Added to favorites' : 'Removed from favorites')),
+    );
+  }
+
+  void _saveNote() {
+    notesBox.put(birdId, _notesController.text);
+    setState(() {
+      _notesChanged = false;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Note saved!')),
+    );
+  }
+
+  void _deleteNote() {
+    notesBox.delete(birdId);
+    _notesController.text = '';
+    setState(() {
+      _notesChanged = false;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Note deleted!')),
+    );
+  }
 
   // pick the best available image: localImagePath -> birdImageUrl -> widget.image -> placeholder
   Widget _buildTopImage() {
@@ -400,6 +458,7 @@ class _ResultScreenState extends State<ResultScreen>
                   SingleChildScrollView(
                     padding: const EdgeInsets.all(16),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _detailRow(
                           Icons.info_outline,
@@ -451,6 +510,53 @@ class _ResultScreenState extends State<ResultScreen>
                                 const SizedBox(height: 8),
                                 const Text(
                                   'Tap the star to add to favorites. Use Share to quickly copy details.',
+                                ),
+                                const SizedBox(height: 16),
+                                Row(
+                                  children: [
+                                    IconButton(
+                                      icon: Icon(
+                                          _isFavorite
+                                              ? Icons.favorite
+                                              : Icons.favorite_border,
+                                          color: Colors.red),
+                                      onPressed: _toggleFavorite,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                        _isFavorite
+                                            ? "Favorited"
+                                            : "Not Favorited"),
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+                                Text("Your Notes:",
+                                    style:
+                                        Theme.of(context).textTheme.titleMedium),
+                                TextField(
+                                  controller: _notesController,
+                                  maxLines: 3,
+                                  decoration: const InputDecoration(
+                                    border: OutlineInputBorder(),
+                                    hintText:
+                                        "Add your personal note about this bird...",
+                                  ),
+                                ),
+                                Row(
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed:
+                                          _notesChanged ? _saveNote : null,
+                                      child: const Text("Save Note"),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    ElevatedButton(
+                                      onPressed: _notesController.text.isNotEmpty
+                                          ? _deleteNote
+                                          : null,
+                                      child: const Text("Delete Note"),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),

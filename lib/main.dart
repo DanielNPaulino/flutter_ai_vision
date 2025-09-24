@@ -7,6 +7,8 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   await Hive.openBox('birddex');
+  await Hive.openBox('favorites'); // <-- Add this
+  await Hive.openBox('notes'); // <-- Add this
 
   // Detect first launch
   final prefs = await SharedPreferences.getInstance();
