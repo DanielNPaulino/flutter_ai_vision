@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // for Clipboard
 import 'package:url_launcher/url_launcher.dart'; // add url_launcher in pubspec
 import 'package:hive/hive.dart';
+import 'package:just_audio/just_audio.dart';
+import '../services/bird_audio_service.dart';
 
 class ResultScreen extends StatefulWidget {
   final File image;
@@ -46,6 +48,11 @@ class _ResultScreenState extends State<ResultScreen>
   late TextEditingController _notesController;
   bool _notesChanged = false;
 
+  late AudioPlayer _audioPlayer;
+  bool _isPlaying = false;
+  String? _birdCallUrl;
+  bool _loadingAudio = true;
+
   String get birdId =>
       widget.scientificName; // Use scientific name as unique ID
 
@@ -63,11 +70,22 @@ class _ResultScreenState extends State<ResultScreen>
         _notesChanged = true;
       });
     });
+    _audioPlayer = AudioPlayer();
+    _fetchBirdCall();
+  }
+
+  Future<void> _fetchBirdCall() async {
+    final url = await BirdAudioService.fetchBirdCall(widget.scientificName);
+    setState(() {
+      _birdCallUrl = url;
+      _loadingAudio = false;
+    });
   }
 
   @override
   void dispose() {
     _notesController.dispose();
+    _audioPlayer.dispose();
     super.dispose();
   }
 
@@ -104,6 +122,26 @@ class _ResultScreenState extends State<ResultScreen>
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(const SnackBar(content: Text('Note deleted!')));
+  }
+
+  Future<void> _togglePlay() async {
+    if (_birdCallUrl == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No bird call available')),
+      );
+      return;
+    }
+
+    if (_isPlaying) {
+      await _audioPlayer.pause();
+    } else {
+      await _audioPlayer.setUrl(_birdCallUrl!);
+      await _audioPlayer.play();
+    }
+
+    setState(() {
+      _isPlaying = !_isPlaying;
+    });
   }
 
   // pick the best available image: localImagePath -> birdImageUrl -> widget.image -> placeholder
@@ -559,6 +597,15 @@ class _ResultScreenState extends State<ResultScreen>
                 ],
               ),
             ),
+            // Example button to add in your build method
+            if (_loadingAudio)
+              const CircularProgressIndicator()
+            else
+              ElevatedButton.icon(
+                onPressed: _togglePlay,
+                icon: Icon(_isPlaying ? Icons.pause : Icons.play_arrow),
+                label: Text(_isPlaying ? 'Pause Bird Call' : 'Play Bird Call'),
+              ),
           ],
         ),
       ),
