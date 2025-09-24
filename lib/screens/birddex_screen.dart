@@ -115,6 +115,8 @@ class _BirdDexScreenState extends State<BirdDexScreen>
       filteredBirds = filteredBirds
           .where((bird) => bird['collected'] == false)
           .toList();
+    } else if (filter == 'Favorites') {
+      filteredBirds = filteredBirds.where((bird) => bird['isFavorite'] == true).toList();
     }
 
     // Filter by size
@@ -246,6 +248,12 @@ class _BirdDexScreenState extends State<BirdDexScreen>
                         "Uncollected",
                         filter == "Uncollected",
                         () => setState(() => filter = "Uncollected"),
+                      ),
+                      const SizedBox(width: 8),
+                      _buildFilterChip(
+                        "Favorites",
+                        filter == "Favorites",
+                        () => setState(() => filter = filter == "Favorites" ? "All" : "Favorites"),
                       ),
                     ],
                   ),
