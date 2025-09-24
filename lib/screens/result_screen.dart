@@ -46,7 +46,8 @@ class _ResultScreenState extends State<ResultScreen>
   late TextEditingController _notesController;
   bool _notesChanged = false;
 
-  String get birdId => widget.scientificName; // Use scientific name as unique ID
+  String get birdId =>
+      widget.scientificName; // Use scientific name as unique ID
 
   @override
   void initState() {
@@ -54,7 +55,9 @@ class _ResultScreenState extends State<ResultScreen>
     favoritesBox = Hive.box('favorites');
     notesBox = Hive.box('notes');
     _isFavorite = favoritesBox.get(birdId, defaultValue: false);
-    _notesController = TextEditingController(text: notesBox.get(birdId, defaultValue: ''));
+    _notesController = TextEditingController(
+      text: notesBox.get(birdId, defaultValue: ''),
+    );
     _notesController.addListener(() {
       setState(() {
         _notesChanged = true;
@@ -74,7 +77,11 @@ class _ResultScreenState extends State<ResultScreen>
       favoritesBox.put(birdId, _isFavorite);
     });
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(_isFavorite ? 'Added to favorites' : 'Removed from favorites')),
+      SnackBar(
+        content: Text(
+          _isFavorite ? 'Added to favorites' : 'Removed from favorites',
+        ),
+      ),
     );
   }
 
@@ -83,9 +90,9 @@ class _ResultScreenState extends State<ResultScreen>
     setState(() {
       _notesChanged = false;
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Note saved!')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Note saved!')));
   }
 
   void _deleteNote() {
@@ -94,9 +101,9 @@ class _ResultScreenState extends State<ResultScreen>
     setState(() {
       _notesChanged = false;
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Note deleted!')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Note deleted!')));
   }
 
   // pick the best available image: localImagePath -> birdImageUrl -> widget.image -> placeholder
@@ -516,23 +523,28 @@ class _ResultScreenState extends State<ResultScreen>
                                   children: [
                                     IconButton(
                                       icon: Icon(
-                                          _isFavorite
-                                              ? Icons.favorite
-                                              : Icons.favorite_border,
-                                          color: Colors.red),
+                                        _isFavorite
+                                            ? Icons.favorite
+                                            : Icons.favorite_border,
+                                        color: Colors.red,
+                                      ),
                                       onPressed: _toggleFavorite,
                                     ),
                                     const SizedBox(width: 8),
                                     Text(
-                                        _isFavorite
-                                            ? "Favorited"
-                                            : "Not Favorited"),
+                                      _isFavorite
+                                          ? "Favorited"
+                                          : "Not Favorited",
+                                    ),
                                   ],
                                 ),
                                 const SizedBox(height: 16),
-                                Text("Your Notes:",
-                                    style:
-                                        Theme.of(context).textTheme.titleMedium),
+                                Text(
+                                  "Your Notes:",
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.titleMedium,
+                                ),
                                 TextField(
                                   controller: _notesController,
                                   maxLines: 3,
@@ -545,13 +557,15 @@ class _ResultScreenState extends State<ResultScreen>
                                 Row(
                                   children: [
                                     ElevatedButton(
-                                      onPressed:
-                                          _notesChanged ? _saveNote : null,
+                                      onPressed: _notesChanged
+                                          ? _saveNote
+                                          : null,
                                       child: const Text("Save Note"),
                                     ),
                                     const SizedBox(width: 8),
                                     ElevatedButton(
-                                      onPressed: _notesController.text.isNotEmpty
+                                      onPressed:
+                                          _notesController.text.isNotEmpty
                                           ? _deleteNote
                                           : null,
                                       child: const Text("Delete Note"),
@@ -575,36 +589,42 @@ class _ResultScreenState extends State<ResultScreen>
   }
 
   Widget _statBadge(IconData icon, String label, String value) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-        decoration: BoxDecoration(
-          color: Colors.grey[100],
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, size: 18),
-            const SizedBox(width: 8),
-            Column(
+  return Flexible(
+    fit: FlexFit.tight,
+    child: Container(
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, size: 18),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   label,
                   style: const TextStyle(fontSize: 11, color: Colors.black54),
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 2),
                 Text(
                   value,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
                 ),
               ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _statusBadge(String status, Color color) {
     return Container(
