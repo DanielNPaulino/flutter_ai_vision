@@ -148,13 +148,17 @@ class _ResultScreenState extends State<ResultScreen>
               final msg = _isFavorite
                   ? 'Added to favorites'
                   : 'Removed from favorites';
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(msg)));
             },
             icon: Icon(_isFavorite ? Icons.favorite : Icons.favorite_border),
             label: const Text('Favorite'),
             style: ElevatedButton.styleFrom(
               minimumSize: const Size.fromHeight(48),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           ),
         ),
@@ -224,7 +228,12 @@ class _ResultScreenState extends State<ResultScreen>
                 children: [
                   // ---------- Overview Tab ----------
                   SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 80), // extra bottom padding
+                    padding: const EdgeInsets.fromLTRB(
+                      16,
+                      16,
+                      16,
+                      80,
+                    ), // extra bottom padding
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
