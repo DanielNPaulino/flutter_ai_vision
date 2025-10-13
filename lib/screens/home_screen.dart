@@ -29,6 +29,31 @@ class _HomeScreenState extends State<HomeScreen> {
       final result = await _apiService.identifyBird(_image!);
       setState(() => _isLoading = false);
       if (!mounted) return;
+
+      // --- Save to Hive BirdDex ---
+      final birddexBox = Hive.box('birddex');
+      final birdKey = result['common_name'];
+      birddexBox.put(birdKey, {
+        'commonName': result['common_name'],
+        'portugueseName': result['portuguese_name'] ?? '',
+        'scientificName': result['scientific_name'],
+        'imageUrl': result['imageUrl'],
+        'localImagePath': _image!.path,
+        'description': result['description'],
+        'habitat': result['habitat'],
+        'diet': result['diet'],
+        'conservationStatus': result['conservation_status'],
+        'confidence': result['confidence'],
+        'collected': true,
+        'dateIdentified': DateTime.now().toIso8601String(),
+        'size': result['size'] ?? 'Unknown',
+        'weight': result['weight'] ?? 'Unknown',
+        'latitude': result['latitude'] ?? 0.0,
+        'longitude': result['longitude'] ?? 0.0,
+        'gltfModelUrl': result['gltfModelUrl'] ?? '',
+      });
+      // --- End save to Hive ---
+
       Navigator.push(
         context,
         MaterialPageRoute(
