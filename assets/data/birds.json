@@ -1,6 +1,7 @@
 [
   {
     "commonName": "Golden Eagle",
+    "portugueseName": "Águia-real",
     "scientificName": "Aquila chrysaetos",
     "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cc/015_Wild_Golden_Eagle_in_flight_at_Pfyn-Finges_%28Switzerland%29_Photo_by_Giles_Laurent.jpg/500px-015_Wild_Golden_Eagle_in_flight_at_Pfyn-Finges_%28Switzerland%29_Photo_by_Giles_Laurent.jpg",
     "size": "Large",
@@ -11,6 +12,7 @@
   },
   {
     "commonName": "Bald Eagle",
+    "portugueseName": "Águia-careca",
     "scientificName": "Haliaeetus leucocephalus",
     "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/d/db/Bald_eagle_about_to_fly_in_Alaska_%282016%29.jpg",
     "size": "Large",
@@ -21,6 +23,7 @@
   },
   {
     "commonName": "Peregrine Falcon",
+    "portugueseName": "Falcão-peregrino",
     "scientificName": "Falco peregrinus",
     "imageUrl": "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcSXiPXxI1ISyqmeIqLaFh12Iq7HtIwdJnADHLqov2NGEyhQBX_oH1Uc_kpj2JCS8O-t2AKHKevpM5LIYp_MIRl0TPa9CMUnatJuQym-004",
     "size": "Medium",
@@ -31,6 +34,7 @@
   },
   {
     "commonName": "European Robin",
+    "portugueseName": "Pisco-de-peito-ruivo",
     "scientificName": "Erithacus rubecula",
     "imageUrl": "https://miro.medium.com/v2/resize:fit:2000/format:webp/1*OGBB0q4h6NbXrzVCGyqEVA.jpeg",
     "size": "Small",
@@ -41,6 +45,7 @@
   },
   {
     "commonName": "Blue Jay",
+    "portugueseName": "Gaio-azul",
     "scientificName": "Cyanocitta cristata",
     "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f4/Blue_jay_in_PP_%2830960%29.jpg/800px-Blue_jay_in_PP_%2830960%29.jpg",
     "size": "Medium",
@@ -50,103 +55,113 @@
     "conservationStatus": "Least Concern"
   },
   {
-  "commonName": "Red Junglefowl",
-  "scientificName": "Gallus gallus",
-  "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Red_jungle_fowl.png/500px-Red_jungle_fowl.png",
-  "size": "Medium",
-  "weight": "2.5–3.5 kg",
-  "habitat": "Tropical and subtropical forests of Southeast Asia",
-  "diet": "Seeds, fruits, leaves, insects, and small invertebrates",
-  "conservationStatus": "Least Concern"
-},
-{
-  "commonName": "Red-billed Quelea",
-  "scientificName": "Quelea quelea",
-  "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Red-billed_Quelea_%28Quelea_quelea%29_%286040990915%29.jpg/1200px-Red-billed_Quelea_%28Quelea_quelea%29_%286040990915%29.jpg",
-  "size": "Small",
-  "weight": "15–26 g",
-  "habitat": "Sub-Saharan Africa, avoiding forests, deserts, and high altitudes",
-  "diet": "Seeds of annual grasses, including wild rice, sorghum, millet, and cereals",
-  "conservationStatus": "Least Concern"
-},
-{
-  "commonName": "House Sparrow",
-  "scientificName": "Passer domesticus",
-  "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/House_sparrow_male_in_Prospect_Park_%2853532%29.jpg/1200px-House_sparrow_male_in_Prospect_Park_%2853532%29.jpg",
-  "size": "Small",
-  "weight": "24–39.5 g",
-  "habitat": "Urban and suburban areas worldwide",
-  "diet": "Seeds, grains, and small insects",
-  "conservationStatus": "Least Concern"
-},
-{
-  "commonName": "Mourning Dove",
-  "scientificName": "Zenaida macroura",
-  "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Av_Mourning_Dove_JG.jpg/1024px-Av_Mourning_Dove_JG.jpg",
-  "size": "Medium",
-  "weight": "112–170 g",
-  "habitat": "Open and semi-open habitats such as urban areas, farms, prairies, grasslands, and lightly wooded areas. They avoid swamps and thick forests.",
-  "diet": "Primarily seeds from grasses and weeds. They can consume up to 20% of their body weight daily.",
-  "conservationStatus": "Least Concern"
-},
-{
-  "commonName": "Spix's Macaw",
-  "scientificName": "Cyanopsitta spixii",
-  "imageUrl": "https://birdspot.co.uk/wp-content/uploads/2025/04/spixs-macaw.jpg",
-  "size": "Medium",
-  "weight": "Approximately 300 g",
-  "habitat": "Riparian Caraibeira (Tabebuia aurea) woodland galleries in the drainage basin of the Rio São Francisco within the Caatinga dry forest climate of interior northeastern Brazil",
-  "diet": "Seeds and nuts of Caraibeira and various Euphorbiaceae (spurge) shrubs, the dominant vegetation of the Caatinga",
-  "conservationStatus": "Extinct in the Wild"
-},
-{
-  "commonName": "Madagascar Pochard",
-  "scientificName": "Aythya innotata",
-  "imageUrl": "https://birdspot.co.uk/wp-content/uploads/2025/04/madagascar-pochard.jpg",
-  "size": "Medium",
-  "weight": "Approximately 300 g",
-  "habitat": "Endemic to inland wetlands in northern Madagascar, particularly Lake Matsaborimena and Lake Sofia",
-  "diet": "Primarily aquatic insects, including caddisflies, dragonfly larvae, and chironomid flies",
-  "conservationStatus": "Critically Endangered"
-},
-{
-  "commonName": "Regent Honeyeater",
-  "scientificName": "Anthochaera phrygia",
-  "imageUrl": "https://birdspot.co.uk/wp-content/uploads/2025/04/regent-honeyeater.jpg",
-  "size": "Medium",
-  "weight": "Approximately 300 g",
-  "habitat": "Endemic to southeastern Australia, especially in forested areas of the interior of the Great Dividing Range, including New South Wales and Victoria",
-  "diet": "Nectar from eucalyptus and mistletoe, as well as insects and their honeydew; also consumes native and cultivated fruits",
-  "conservationStatus": "Critically Endangered"
-},
-{
-  "commonName": "Yellow-crested Cockatoo",
-  "scientificName": "Cacatua sulphurea",
-  "imageUrl": "https://birdspot.co.uk/wp-content/uploads/2025/04/yellow-crested-cockatoo.jpg",
-  "size": "Medium",
-  "weight": "308–380 g",
-  "habitat": "Wooded and cultivated areas of East Timor and Indonesia's islands of Sulawesi and the Lesser Sundas",
-  "diet": "Seeds, buds, fruits, nuts, and herbaceous plants",
-  "conservationStatus": "Critically Endangered"
-},
-{
-  "commonName": "Bali Starling",
-  "scientificName": "Leucopsar rothschildi",
-  "imageUrl": "https://birdspot.co.uk/wp-content/uploads/2025/04/bali-myna.jpg",
-  "size": "Medium",
-  "weight": "Approximately 100–150 g",
-  "habitat": "Endemic to the northwest of Bali, Indonesia, particularly in the Bali Barat National Park and Nusa Penida Island",
-  "diet": "Primarily fruits, seeds, and insects",
-  "conservationStatus": "Critically Endangered"
-},
-{
-  "commonName": "Magnificent Hummingbird",
-  "scientificName": "Lophornis magnificus",
-  "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Lophornis_magnificus_-_Frilled_Coquette_%28male%29.jpg/500px-Lophornis_magnificus_-_Frilled_Coquette_%28male%29.jpg",
-  "size": "Small",
-  "weight": "Approximately 2.66 g",
-  "habitat": "Subtropical or tropical moist lowland forests, secondary forests, and forest edges, up to 1000 m altitude",
-  "diet": "Flower nectar and small insects",
-  "conservationStatus": "Least Concern"
-}
+    "commonName": "Red Junglefowl",
+    "portugueseName": "Galo-selvagem-vermelho",
+    "scientificName": "Gallus gallus",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Red_jungle_fowl.png/500px-Red_jungle_fowl.png",
+    "size": "Medium",
+    "weight": "2.5–3.5 kg",
+    "habitat": "Tropical and subtropical forests of Southeast Asia",
+    "diet": "Seeds, fruits, leaves, insects, and small invertebrates",
+    "conservationStatus": "Least Concern"
+  },
+  {
+    "commonName": "Red-billed Quelea",
+    "portugueseName": "Bico-de-lacre-de-bico-vermelho",
+    "scientificName": "Quelea quelea",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Red-billed_Quelea_%28Quelea_quelea%29_%286040990915%29.jpg/1200px-Red-billed_Quelea_%28Quelea_quelea%29_%286040990915%29.jpg",
+    "size": "Small",
+    "weight": "15–26 g",
+    "habitat": "Sub-Saharan Africa, avoiding forests, deserts, and high altitudes",
+    "diet": "Seeds of annual grasses, including wild rice, sorghum, millet, and cereals",
+    "conservationStatus": "Least Concern"
+  },
+  {
+    "commonName": "House Sparrow",
+    "portugueseName": "Pardal",
+    "scientificName": "Passer domesticus",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/House_sparrow_male_in_Prospect_Park_%2853532%29.jpg/1200px-House_sparrow_male_in_Prospect_Park_%2853532%29.jpg",
+    "size": "Small",
+    "weight": "24–39.5 g",
+    "habitat": "Urban and suburban areas worldwide",
+    "diet": "Seeds, grains, and small insects",
+    "conservationStatus": "Least Concern"
+  },
+  {
+    "commonName": "Mourning Dove",
+    "portugueseName": "Rola-americana",
+    "scientificName": "Zenaida macroura",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Av_Mourning_Dove_JG.jpg/1024px-Av_Mourning_Dove_JG.jpg",
+    "size": "Medium",
+    "weight": "112–170 g",
+    "habitat": "Open and semi-open habitats such as urban areas, farms, prairies, grasslands, and lightly wooded areas.",
+    "diet": "Primarily seeds from grasses and weeds.",
+    "conservationStatus": "Least Concern"
+  },
+  {
+    "commonName": "Spix's Macaw",
+    "portugueseName": "Ararinha-azul",
+    "scientificName": "Cyanopsitta spixii",
+    "imageUrl": "https://birdspot.co.uk/wp-content/uploads/2025/04/spixs-macaw.jpg",
+    "size": "Medium",
+    "weight": "Approximately 300 g",
+    "habitat": "Riparian Caraibeira woodland galleries in the Caatinga of northeastern Brazil",
+    "diet": "Seeds and nuts of Caraibeira and various Euphorbiaceae shrubs",
+    "conservationStatus": "Extinct in the Wild"
+  },
+  {
+    "commonName": "Madagascar Pochard",
+    "portugueseName": "Marreco-de-Madagáscar",
+    "scientificName": "Aythya innotata",
+    "imageUrl": "https://birdspot.co.uk/wp-content/uploads/2025/04/madagascar-pochard.jpg",
+    "size": "Medium",
+    "weight": "Approximately 300 g",
+    "habitat": "Endemic to inland wetlands in northern Madagascar",
+    "diet": "Aquatic insects",
+    "conservationStatus": "Critically Endangered"
+  },
+  {
+    "commonName": "Regent Honeyeater",
+    "portugueseName": "Beija-flor-regente",
+    "scientificName": "Anthochaera phrygia",
+    "imageUrl": "https://birdspot.co.uk/wp-content/uploads/2025/04/regent-honeyeater.jpg",
+    "size": "Medium",
+    "weight": "Approximately 300 g",
+    "habitat": "Southeastern Australia, interior forested areas",
+    "diet": "Nectar, insects, fruits",
+    "conservationStatus": "Critically Endangered"
+  },
+  {
+    "commonName": "Yellow-crested Cockatoo",
+    "portugueseName": "Cacatua-de-crista-amarela",
+    "scientificName": "Cacatua sulphurea",
+    "imageUrl": "https://birdspot.co.uk/wp-content/uploads/2025/04/yellow-crested-cockatoo.jpg",
+    "size": "Medium",
+    "weight": "308–380 g",
+    "habitat": "Wooded and cultivated areas of East Timor and Indonesia",
+    "diet": "Seeds, buds, fruits, nuts, and plants",
+    "conservationStatus": "Critically Endangered"
+  },
+  {
+    "commonName": "Bali Starling",
+    "portugueseName": "Estorninho-de-Bali",
+    "scientificName": "Leucopsar rothschildi",
+    "imageUrl": "https://birdspot.co.uk/wp-content/uploads/2025/04/bali-myna.jpg",
+    "size": "Medium",
+    "weight": "100–150 g",
+    "habitat": "Bali Barat National Park, Indonesia",
+    "diet": "Fruits, seeds, and insects",
+    "conservationStatus": "Critically Endangered"
+  },
+  {
+    "commonName": "Magnificent Hummingbird",
+    "portugueseName": "Topetudo-magnífico",
+    "scientificName": "Lophornis magnificus",
+    "imageUrl": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Lophornis_magnificus_-_Frilled_Coquette_%28male%29.jpg/500px-Lophornis_magnificus_-_Frilled_Coquette_%28male%29.jpg",
+    "size": "Small",
+    "weight": "Approximately 2.66 g",
+    "habitat": "Tropical moist forests and forest edges",
+    "diet": "Flower nectar and small insects",
+    "conservationStatus": "Least Concern"
+  }
 ]
