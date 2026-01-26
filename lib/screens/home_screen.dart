@@ -26,52 +26,79 @@ class _HomeScreenState extends State<HomeScreen> {
         _image = File(picked.path);
         _isLoading = true;
       });
-      final result = await _apiService.identifyBird(_image!);
-      setState(() => _isLoading = false);
-      if (!mounted) return;
 
-      // --- Save to Hive BirdDex ---
-      final birddexBox = Hive.box('birddex');
-      final birdKey = result['common_name'];
-      birddexBox.put(birdKey, {
-        'commonName': result['common_name'],
-        'portugueseName': result['portuguese_name'] ?? '',
-        'scientificName': result['scientific_name'],
-        'imageUrl': result['imageUrl'],
-        'localImagePath': _image!.path,
-        'description': result['description'],
-        'habitat': result['habitat'],
-        'diet': result['diet'],
-        'conservationStatus': result['conservation_status'],
-        'confidence': result['confidence'],
-        'collected': true,
-        'dateIdentified': DateTime.now().toIso8601String(),
-        'size': result['size'] ?? 'Unknown',
-        'weight': result['weight'] ?? 'Unknown',
-        'latitude': result['latitude'] ?? 0.0,
-        'longitude': result['longitude'] ?? 0.0,
-        'gltfModelUrl': result['gltfModelUrl'] ?? '',
-      });
-      // --- End save to Hive ---
+      try {
+        print('🔍 Starting bird identification...');
+        final result = await _apiService.identifyBird(_image!);
+        print('✅ Bird identified successfully: ${result['common_name']}');
+        
+        setState(() => _isLoading = false);
+        if (!mounted) return;
 
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => ResultScreen(
-            image: _image!,
-            birdImageUrl: result['imageUrl'],
-            commonName: result['common_name'],
-            scientificName: result['scientific_name'],
-            confidence: result['confidence'],
-            description: result['description'],
-            habitat: result['habitat'],
-            diet: result['diet'],
-            conservationStatus: result['conservation_status'],
-            size: result['size'] ?? 'Unknown',
-            weight: result['weight'] ?? 'Unknown',
+        // --- Save to Hive BirdDex ---
+        final birddexBox = Hive.box('birddex');
+        final birdKey = result['common_name'];
+        birddexBox.put(birdKey, {
+          'commonName': result['common_name'],
+          'portugueseName': result['portuguese_name'] ?? '',
+          'scientificName': result['scientific_name'],
+          'imageUrl': result['imageUrl'],
+          'localImagePath': _image!.path,
+          'description': result['description'],
+          'habitat': result['habitat'],
+          'diet': result['diet'],
+          'conservationStatus': result['conservation_status'],
+          'confidence': result['confidence'],
+          'collected': true,
+          'dateIdentified': DateTime.now().toIso8601String(),
+          'size': result['size'] ?? 'Unknown',
+          'weight': result['weight'] ?? 'Unknown',
+          'latitude': result['latitude'] ?? 0.0,
+          'longitude': result['longitude'] ?? 0.0,
+          'gltfModelUrl': result['gltfModelUrl'] ?? '',
+        });
+        // --- End save to Hive ---
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ResultScreen(
+              image: _image!,
+              birdImageUrl: result['imageUrl'],
+              commonName: result['common_name'],
+              scientificName: result['scientific_name'],
+              confidence: result['confidence'],
+              description: result['description'],
+              habitat: result['habitat'],
+              diet: result['diet'],
+              conservationStatus: result['conservation_status'],
+              size: result['size'] ?? 'Unknown',
+              weight: result['weight'] ?? 'Unknown',
+            ),
           ),
-        ),
-      );
+        );
+      } catch (e) {
+        print('❌ Error identifying bird: $e');
+        setState(() => _isLoading = false);
+        if (!mounted) return;
+
+        // Show error dialog to user
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Identification Failed'),
+            content: Text(
+              'Failed to identify the bird. Please check your internet connection and API key.\n\nError: $e',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+      }
     }
   }
 

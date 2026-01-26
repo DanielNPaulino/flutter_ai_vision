@@ -1,17 +1,28 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  final String _apiKey =
-      "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"; // TODO: move to env later
+  final String _apiKey = dotenv.env['OPENAI_API_KEY'] ?? '';
 
   /// Identify bird species with enriched data
   Future<Map<String, dynamic>> identifyBird(File imageFile) async {
+    // Validate API key
+    if (_apiKey.isEmpty) {
+      print('❌ ERROR: OpenAI API key is empty!');
+      throw Exception('OpenAI API key not found. Please check your .env file.');
+    }
+    
+    print('🔑 API Key loaded: ${_apiKey.substring(0, 20)}...');
+    print('📸 Processing image: ${imageFile.path}');
+    
     final url = Uri.parse("https://api.openai.com/v1/chat/completions");
 
     final imageBytes = await imageFile.readAsBytes();
     final base64Image = base64Encode(imageBytes);
+    
+    print('📦 Image encoded, size: ${imageBytes.length} bytes');
 
     final headers = {
       "Content-Type": "application/json",
@@ -54,15 +65,21 @@ class ApiService {
       ],
     });
 
+    print('🌐 Sending request to OpenAI API...');
     final response = await http.post(url, headers: headers, body: body);
+    print('📡 Response received! Status: ${response.statusCode}');
+    
     final data = jsonDecode(response.body);
 
     if (data['error'] != null) {
       final errorMessage = data['error']['message'] ?? "Unknown API error";
+      print('❌ OpenAI API Error: $errorMessage');
       throw Exception(
         "OpenAI API error: ${response.statusCode} - $errorMessage",
       );
     }
+    
+    print('✅ API response parsed successfully');
 
     final String? aiText = data['choices'][0]['message']?['content'];
     if (aiText == null || aiText.isEmpty) {
