@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:hive/hive.dart';
+import '../utils/weight_parser.dart';
 import 'result_screen.dart';
 
 class BirdDexScreen extends StatefulWidget {
@@ -145,21 +146,8 @@ class _BirdDexScreenState extends State<BirdDexScreen>
       });
     } else if (sortOption == "Weight") {
       filteredBirds.sort((a, b) {
-        double parseWeight(String? weightStr) {
-          if (weightStr == null) return 0;
-          final kgMatch = RegExp(r'(\d+(\.\d+)?)\s*kg').firstMatch(weightStr);
-          if (kgMatch != null) {
-            return double.tryParse(kgMatch.group(1) ?? '0') ?? 0;
-          }
-          final gMatch = RegExp(r'(\d+(\.\d+)?)\s*g').firstMatch(weightStr);
-          if (gMatch != null) {
-            return (double.tryParse(gMatch.group(1) ?? '0') ?? 0) / 1000.0;
-          }
-          return 0;
-        }
-
-        final weightA = parseWeight(a['weight']);
-        final weightB = parseWeight(b['weight']);
+        final weightA = parseWeightKg(a['weight']);
+        final weightB = parseWeightKg(b['weight']);
         return weightB.compareTo(weightA);
       });
     }

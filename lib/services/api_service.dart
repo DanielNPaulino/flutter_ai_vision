@@ -14,7 +14,6 @@ class ApiService {
       throw Exception('OpenAI API key not found. Please check your .env file.');
     }
     
-    print('🔑 API Key loaded: ${_apiKey.substring(0, 20)}...');
     print('📸 Processing image: ${imageFile.path}');
     
     final url = Uri.parse("https://api.openai.com/v1/chat/completions");

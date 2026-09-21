@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/api_service.dart';
 import 'result_screen.dart';
-import 'birdDex_screen.dart';
+import 'birddex_screen.dart';
 import 'package:hive/hive.dart';
 
 class HomeScreen extends StatefulWidget {
