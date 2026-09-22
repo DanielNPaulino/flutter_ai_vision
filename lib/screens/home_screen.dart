@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import '../services/api_service.dart';
 import 'result_screen.dart';
 import 'birddex_screen.dart';
@@ -19,11 +20,26 @@ class _HomeScreenState extends State<HomeScreen> {
   final ApiService _apiService = ApiService();
   bool _isLoading = false;
 
+  /// image_picker saves photos to a temporary/cache directory that the OS
+  /// can clear at any time. Copy the photo into permanent app storage so
+  /// BirdDex thumbnails keep working after the cache is cleared.
+  Future<File> _persistImage(File source) async {
+    final docsDir = await getApplicationDocumentsDirectory();
+    final photosDir = Directory('${docsDir.path}/bird_photos');
+    if (!await photosDir.exists()) {
+      await photosDir.create(recursive: true);
+    }
+    final ext = source.path.contains('.') ? source.path.split('.').last : 'jpg';
+    final fileName = '${DateTime.now().millisecondsSinceEpoch}.$ext';
+    return source.copy('${photosDir.path}/$fileName');
+  }
+
   Future<void> _pickImage(ImageSource source) async {
     final picked = await _picker.pickImage(source: source, imageQuality: 85);
     if (picked != null) {
+      final persisted = await _persistImage(File(picked.path));
       setState(() {
-        _image = File(picked.path);
+        _image = persisted;
         _isLoading = true;
       });
 

@@ -367,21 +367,7 @@ class _BirdDexScreenState extends State<BirdDexScreen>
                                   borderRadius: const BorderRadius.vertical(
                                     top: Radius.circular(12),
                                   ),
-                                  child: collected && bird['localImagePath'] != null
-                                      ? Image.file(
-                                          File(bird['localImagePath']),
-                                          fit: BoxFit.cover,
-                                        )
-                                      : Image.network(
-                                          bird['imageUrl'],
-                                          fit: BoxFit.cover,
-                                          errorBuilder:
-                                              (context, error, stackTrace) =>
-                                                  const Icon(
-                                                    Icons.broken_image,
-                                                    size: 50,
-                                                  ),
-                                        ),
+                                  child: _buildBirdImage(bird, collected),
                                 ),
                               ),
                               Padding(
@@ -430,6 +416,28 @@ class _BirdDexScreenState extends State<BirdDexScreen>
         ],
       ),
     );
+  }
+
+  /// Builds the grid tile image, preferring the user's own saved photo and
+  /// falling back to the reference [bird]['imageUrl'] (and finally a broken
+  /// image icon) if the local file is missing, e.g. because the OS cleared
+  /// the picker's cache directory after the photo was taken.
+  Widget _buildBirdImage(Map<String, dynamic> bird, bool collected) {
+    final networkFallback = Image.network(
+      bird['imageUrl'],
+      fit: BoxFit.cover,
+      errorBuilder: (context, error, stackTrace) =>
+          const Icon(Icons.broken_image, size: 50),
+    );
+
+    if (collected && bird['localImagePath'] != null) {
+      return Image.file(
+        File(bird['localImagePath']),
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) => networkFallback,
+      );
+    }
+    return networkFallback;
   }
 
   /// --- Helper Widgets for Chips ---
