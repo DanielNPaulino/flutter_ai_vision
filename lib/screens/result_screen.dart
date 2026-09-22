@@ -162,11 +162,23 @@ class _ResultScreenState extends State<ResultScreen>
     });
   }
 
-  // pick the best available image: localImagePath -> birdImageUrl -> widget.image -> placeholder
+  // Pick the best available image: localImagePath -> birdImageUrl -> widget.image
+  // -> placeholder. Each tier falls through to the next on load failure (not just
+  // when the field is empty), so a stale/missing local file doesn't permanently
+  // hide a perfectly good fallback image.
   Widget _buildTopImage() {
     if (widget.localImagePath != null && widget.localImagePath!.isNotEmpty) {
-      return Image.file(File(widget.localImagePath!), fit: BoxFit.cover);
-    } else if (widget.birdImageUrl != null && widget.birdImageUrl!.isNotEmpty) {
+      return Image.file(
+        File(widget.localImagePath!),
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, st) => _buildNetworkOrLocalImage(),
+      );
+    }
+    return _buildNetworkOrLocalImage();
+  }
+
+  Widget _buildNetworkOrLocalImage() {
+    if (widget.birdImageUrl != null && widget.birdImageUrl!.isNotEmpty) {
       return Image.network(
         widget.birdImageUrl!,
         fit: BoxFit.cover,
@@ -181,13 +193,21 @@ class _ResultScreenState extends State<ResultScreen>
             ),
           );
         },
+        errorBuilder: (context, error, st) => _buildCapturedImage(),
+      );
+    }
+    return _buildCapturedImage();
+  }
+
+  Widget _buildCapturedImage() {
+    if (widget.image.path.isNotEmpty) {
+      return Image.file(
+        widget.image,
+        fit: BoxFit.cover,
         errorBuilder: (context, error, st) => _placeholderImage(),
       );
-    } else if (widget.image.path.isNotEmpty) {
-      return Image.file(widget.image, fit: BoxFit.cover);
-    } else {
-      return _placeholderImage();
     }
+    return _placeholderImage();
   }
 
   Widget _placeholderImage() {
