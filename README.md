@@ -10,13 +10,20 @@ BirdDex is a cross-platform Flutter app that combines a **vision-capable LLM (Op
 ![Hive](https://img.shields.io/badge/Storage-Hive-FFC107)
 ![Platforms](https://img.shields.io/badge/Platforms-Android%20%7C%20iOS-3DDC84)
 
-<!-- Add screenshots here, e.g.:
-<p align="center">
-  <img src="docs/home.png" width="220" />
-  <img src="docs/result.png" width="220" />
-  <img src="docs/birddex.png" width="220" />
-</p>
--->
+## 📱 Screenshots
+
+<table align="center">
+  <tr>
+    <td align="center"><img src="docs/home.jpg" width="220" alt="Home screen with camera, gallery and BirdDex actions" /></td>
+    <td align="center"><img src="docs/result.jpg" width="220" alt="Species detail screen for a Golden Eagle with AI confidence, stats and bird call player" /></td>
+    <td align="center"><img src="docs/birddex.jpg" width="220" alt="BirdDex collection grid with search, filters and sort options" /></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Home</b><br/>Identify from camera or gallery</td>
+    <td align="center"><b>Species detail</b><br/>AI confidence, stats &amp; bird call</td>
+    <td align="center"><b>BirdDex</b><br/>Collection with search, filter &amp; sort</td>
+  </tr>
+</table>
 
 ---
 
